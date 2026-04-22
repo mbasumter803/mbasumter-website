@@ -7,7 +7,7 @@
 //
 // Destination is hardcoded to 803-795-1194 (Trey Google Voice, will forward to his cell).
 
-const OWNER_PHONE = "+18037951194";
+const OWNER_PHONE = "+18039685749"; // Trey cell - bypasses Google Voice for fastest delivery
 const BUSINESS_NAME = "Mattress by Appointment of Sumter";
 
 async function sendTwilioSms(to, body){
