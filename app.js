@@ -53,8 +53,23 @@
     }
 
     // Hero triggers
-    document.querySelectorAll("[data-chat],[href=\"#chat\"]").forEach(el=>{
+    // Hijack any "Book Appointment"-style button/link to open the chat instead of jumping to #book
+    const bookSelectors = [
+      '[data-chat]',
+      'a[href="#chat"]',
+      'a[href="#book"]',
+      'a[href="#appointment"]'
+    ];
+    document.querySelectorAll(bookSelectors.join(",")).forEach(el=>{
       el.addEventListener("click", function(e){ e.preventDefault(); openChat(); });
+    });
+    // Also catch any link/button whose text matches booking intent
+    document.querySelectorAll("a,button").forEach(el=>{
+      const t = (el.textContent||"").trim().toLowerCase();
+      if(el.id === "chatToggle" || el.id === "chatClose" || el.id === "chatReset" || el.id === "chatSend") return;
+      if(/^book (a |free |your |an )?appointment/.test(t) || t === "book now" || t === "book appointment"){
+        el.addEventListener("click", function(e){ e.preventDefault(); openChat(); });
+      }
     });
     return true;
   }
@@ -307,6 +322,7 @@
 
   function init(){
     if(!bindDom()) return;
+    maybeAutoOpen();
     if(load() && state.messages.length){
       state.messages.forEach(m => {
         const row = document.createElement("div");
@@ -319,6 +335,21 @@
       });
       msgs.scrollTop = msgs.scrollHeight;
     }
+  }
+
+  // Auto-open chat ~2.5s after load on first visit (per session)
+  // Respects: if user already opened and closed it this session, do not re-open
+  function maybeAutoOpen(){
+    try{
+      const opened = store.getItem("mba_chat_autoopened_v4");
+      if(opened) return;
+      setTimeout(function(){
+        if(!widget) return;
+        if(widget.classList.contains("open")) return;
+        store.setItem("mba_chat_autoopened_v4","1");
+        openChat();
+      }, 2500);
+    }catch(e){}
   }
 
   if(document.readyState === "loading"){
