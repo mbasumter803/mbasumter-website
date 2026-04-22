@@ -1,8 +1,9 @@
-// Mattress by Appointment of Sumter - Elite AI Sleep Specialist v3
-// Fixes: correct pricing, session reset each visit, tighter sales flow, shorter high-conviction replies
+// Mattress by Appointment of Sumter - Elite AI Sleep Specialist v4
+// Uses EXISTING DOM (#chatWidget/#chatToggle/#chatBox/#chatMessages/#chatQuickReplies/#chatInput/#chatSend)
+// Fixes: correct pricing, session reset each visit, tighter high-conviction sales flow
 
 (function(){
-  const STATE_KEY = "mba_chat_state_v3";
+  const STATE_KEY = "mba_chat_state_v4";
   const store = sessionStorage;
 
   const PRICES = {
@@ -12,79 +13,63 @@
     king:   { ours: 275, retail: 1199 }
   };
 
-  const BIZ = {
-    name: "Mattress by Appointment of Sumter",
-    phone: "803-795-1194",
-    address: "1809 Hwy 15 South, Sumter SC 29150",
-    hours: "7 days a week, 10am-7pm"
-  };
-
   let state = {
     step: "greet",
     name: null, phone: null, size: null, pain: null, when: null,
     messages: []
   };
 
-  function h(tag, attrs, kids){
-    const el = document.createElement(tag);
-    if(attrs) for(const k in attrs){
-      if(k === "class") el.className = attrs[k];
-      else if(k === "onclick") el.onclick = attrs[k];
-      else el.setAttribute(k, attrs[k]);
+  // ---------- DOM refs (bound on DOMContentLoaded) ----------
+  let widget, toggle, box, closeBtn, msgs, quick, input, sendBtn;
+
+  function bindDom(){
+    widget   = document.getElementById("chatWidget");
+    toggle   = document.getElementById("chatToggle");
+    box      = document.getElementById("chatBox");
+    closeBtn = document.getElementById("chatClose");
+    msgs     = document.getElementById("chatMessages");
+    quick    = document.getElementById("chatQuickReplies");
+    input    = document.getElementById("chatInput");
+    sendBtn  = document.getElementById("chatSend");
+    if(!widget) return false;
+
+    toggle.addEventListener("click", openChat);
+    closeBtn.addEventListener("click", closeChat);
+    sendBtn.addEventListener("click", submitTyped);
+    input.addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); submitTyped(); } });
+
+    // Reset button next to close
+    if(!document.getElementById("chatReset")){
+      const reset = document.createElement("button");
+      reset.id = "chatReset";
+      reset.title = "Start over";
+      reset.setAttribute("aria-label","Start over");
+      reset.innerHTML = "\u21BB";
+      reset.style.cssText = "background:transparent;border:none;color:#fff;font-size:20px;cursor:pointer;margin-right:8px;opacity:.7";
+      reset.addEventListener("mouseenter", ()=> reset.style.opacity="1");
+      reset.addEventListener("mouseleave", ()=> reset.style.opacity=".7");
+      reset.addEventListener("click", function(){ if(confirm("Start a new conversation?")) resetAll(); });
+      closeBtn.parentNode.insertBefore(reset, closeBtn);
     }
-    (kids||[]).forEach(k=> el.appendChild(typeof k === "string" ? document.createTextNode(k) : k));
-    return el;
+
+    // Hero triggers
+    document.querySelectorAll("[data-chat],[href=\"#chat\"]").forEach(el=>{
+      el.addEventListener("click", function(e){ e.preventDefault(); openChat(); });
+    });
+    return true;
   }
 
-  let launcher, panel, log, input, quick;
-
-  function build(){
-    launcher = h("button", {class:"chat-launcher","aria-label":"Open chat", onclick: togglePanel}, []);
-    launcher.innerHTML = '<span class="chat-launcher-icon">\u{1F4AC}</span> Book Now';
-    document.body.appendChild(launcher);
-
-    panel = h("div", {class:"chat-panel", role:"dialog", "aria-label":"Sleep Specialist"}, []);
-    panel.innerHTML = [
-      '<div class="chat-head">',
-      '  <div>',
-      '    <div class="chat-title">Sleep Specialist</div>',
-      '    <div class="chat-sub">Mattress by Appointment &middot; Sumter</div>',
-      '  </div>',
-      '  <div class="chat-head-actions">',
-      '    <button class="chat-reset" title="Start over" aria-label="Start over">\u21BB</button>',
-      '    <button class="chat-close" title="Close" aria-label="Close">\u2715</button>',
-      '  </div>',
-      '</div>',
-      '<div class="chat-log" id="chatLog"></div>',
-      '<div class="chat-quick" id="chatQuick"></div>',
-      '<form class="chat-form" id="chatForm">',
-      '  <input type="text" id="chatInput" placeholder="Type your message..." autocomplete="off" />',
-      '  <button type="submit" class="chat-send">Send</button>',
-      '</form>'
-    ].join("");
-    document.body.appendChild(panel);
-
-    log = panel.querySelector("#chatLog");
-    quick = panel.querySelector("#chatQuick");
-    input = panel.querySelector("#chatInput");
-    const form = panel.querySelector("#chatForm");
-    form.addEventListener("submit", function(e){ e.preventDefault(); submit(); });
-    panel.querySelector(".chat-close").onclick = togglePanel;
-    panel.querySelector(".chat-reset").onclick = function(){
-      if(confirm("Start a new conversation?")) resetAll();
-    };
+  function openChat(){
+    widget.classList.add("open");
+    if(state.messages.length === 0) greet();
+    setTimeout(()=> input && input.focus(), 150);
   }
-
-  function togglePanel(){
-    const open = panel.classList.toggle("open");
-    if(open && state.messages.length === 0) greet();
-    if(open) setTimeout(()=> input && input.focus(), 200);
-  }
+  function closeChat(){ widget.classList.remove("open"); }
 
   function resetAll(){
     store.removeItem(STATE_KEY);
     state = { step:"greet", name:null, phone:null, size:null, pain:null, when:null, messages:[] };
-    log.innerHTML = "";
+    msgs.innerHTML = "";
     quick.innerHTML = "";
     greet();
   }
@@ -99,12 +84,14 @@
   }
 
   function addMsg(role, text){
-    const row = h("div", {class:"chat-msg chat-msg-"+role}, []);
-    const bubble = h("div", {class:"chat-bubble"}, []);
+    const row = document.createElement("div");
+    row.className = "chat-msg chat-msg-" + role;
+    const bubble = document.createElement("div");
+    bubble.className = "chat-bubble";
     bubble.innerHTML = text.replace(/\n/g,"<br>");
     row.appendChild(bubble);
-    log.appendChild(row);
-    log.scrollTop = log.scrollHeight;
+    msgs.appendChild(row);
+    msgs.scrollTop = msgs.scrollHeight;
     state.messages.push({role, text});
     save();
   }
@@ -112,7 +99,10 @@
   function setQuick(options){
     quick.innerHTML = "";
     (options||[]).forEach(opt=>{
-      const b = h("button", {class:"chat-quick-btn", onclick: ()=> onQuick(opt)}, [opt.label || opt]);
+      const b = document.createElement("button");
+      b.className = "chat-quick-btn";
+      b.textContent = opt.label || opt;
+      b.addEventListener("click", ()=> onQuick(opt));
       quick.appendChild(b);
     });
   }
@@ -124,7 +114,7 @@
     route(opt.value || label.toLowerCase());
   }
 
-  function submit(){
+  function submitTyped(){
     const v = (input.value||"").trim();
     if(!v) return;
     input.value = "";
@@ -145,35 +135,52 @@
       {label:"Back or sleep pain", value:"pain"},
       {label:"Just browsing", value:"browsing"}
     ]);
-    state.step = "discovery";
-    save();
+    state.step = "discovery"; save();
   }
 
-  function baseRoute(msg){
-    if(/book|appoint|schedul|come in|stop by|visit/.test(msg)) return flowBooking();
-    if(/price|cost|how much|cheap|afford/.test(msg) || /^(price|prices)$/.test(msg)) return answerPrice();
-    if(/queen/.test(msg)) return answerSize("queen");
-    if(/king/.test(msg)) return answerSize("king");
-    if(/full|double/.test(msg)) return answerSize("full");
-    if(/twin/.test(msg)) return answerSize("twin");
-    if(/back|pain|hurt|sore|hip|shoulder|neck/.test(msg) || msg==="pain") return answerPain();
-    if(/hot|sweat|cool/.test(msg)) return answerHot();
-    if(/finance|credit|acima|snap|payment|monthly/.test(msg)) return answerFinance();
-    if(/deliver|pickup|take home|car|fit/.test(msg)) return answerDelivery();
-    if(/warrant|return|exchange/.test(msg)) return answerWarranty();
-    if(/hour|open|close|today|tonight|weekend/.test(msg)) return answerHours();
-    if(/address|where|location|direction/.test(msg)) return answerAddress();
-    if(/browsing|looking|just look/.test(msg)) return answerBrowsing();
-    if(/need_new|need|new mattress|replac|upgrad/.test(msg)) return answerNeedNew();
+  function route(v){
+    // Quick-reply tokens first
+    if(v === "call"){ addMsg("bot","Absolutely \u2014 <a href=\"tel:8037951194\">tap to call 803-795-1194</a>. Trey picks up 7 days a week."); return; }
+    if(v === "not_yet" || v === "not yet"){ addMsg("bot","No worries. Questions about brands, financing, or sizes?"); setQuick([{label:"Financing",value:"finance"},{label:"Brands",value:"brands"},{label:"Prices",value:"price"}]); return; }
+    if(v === "confirm_yes" || v === "confirm"){ return sendBooking(); }
+    if(v === "confirm_fix" || v === "fix"){ state.name=null; state.phone=null; state.when=null; save(); return askName(); }
+    if(v === "more" || v === "more info"){ addMsg("bot","What matters most to you?"); setQuick([{label:"Back support",value:"pain"},{label:"Cooling",value:"hot"},{label:"Brands",value:"brands"},{label:"Financing",value:"finance"}]); return; }
+    if(v === "brands"){ addMsg("bot","We carry Serta, Sealy, Simmons, Southerland, Malouf, and Allswell \u2014 all name brands at 50-80% off retail.\n\nWant to come see them?"); setQuick([{label:"Today",value:"book_today"},{label:"Tomorrow",value:"book_tomorrow"}]); return; }
+    if(v.startsWith("book_")){
+      const when = v.replace("book_","");
+      const map = {today:"today", tomorrow:"tomorrow", weekend:"this weekend"};
+      state.when = map[when] || when;
+      save();
+      return flowBooking();
+    }
 
-    if(state.step === "collect_name"){ state.name = titleCase(msg); save(); return askPhone(); }
+    // Intent detection
+    if(/book|appoint|schedul|come in|stop by|visit/.test(v)) return flowBooking();
+    if(/price|cost|how much|cheap|afford/.test(v) || v==="price") return answerPrice();
+    if(/queen/.test(v)) return answerSize("queen");
+    if(/king/.test(v)) return answerSize("king");
+    if(/full|double/.test(v)) return answerSize("full");
+    if(/twin/.test(v)) return answerSize("twin");
+    if(/back|pain|hurt|sore|hip|shoulder|neck/.test(v) || v==="pain") return answerPain();
+    if(/hot|sweat|cool/.test(v)) return answerHot();
+    if(/finance|credit|acima|snap|payment|monthly/.test(v)) return answerFinance();
+    if(/deliver|pickup|take home|car|fit/.test(v)) return answerDelivery();
+    if(/warrant|return|exchange/.test(v)) return answerWarranty();
+    if(/hour|open|close|today|tonight|weekend/.test(v)) return answerHours();
+    if(/address|where|location|direction/.test(v)) return answerAddress();
+    if(/browsing|looking|just look/.test(v)) return answerBrowsing();
+    if(/need_new|need|new mattress|replac|upgrad/.test(v)) return answerNeedNew();
+
+    // Collecting
+    if(state.step === "collect_name"){ state.name = titleCase(v); save(); return askPhone(); }
     if(state.step === "collect_phone"){
-      const p = normalizePhone(msg);
-      if(!p) { addMsg("bot", "Could you send me that number again? 10 digits like 803-555-0123 works great."); return; }
+      const p = normalizePhone(v);
+      if(!p){ addMsg("bot","Could you send me that number again? 10 digits like 803-555-0123 works great."); return; }
       state.phone = p; save(); return askWhen();
     }
-    if(state.step === "collect_when"){ state.when = msg; save(); return confirmBooking(); }
+    if(state.step === "collect_when"){ state.when = v; save(); return confirmBooking(); }
 
+    // Fallback
     addMsg("bot", "Great question. Easiest way to get the right answer is 5 minutes in the showroom. Want me to lock in a time?");
     setQuick([{label:"Book today",value:"book_today"},{label:"This weekend",value:"book_weekend"},{label:"Call 803-795-1194",value:"call"}]);
   }
@@ -252,14 +259,8 @@
     return confirmBooking();
   }
 
-  function askName(){
-    addMsg("bot", "Love it. What\u2019s your first name?");
-    state.step = "collect_name"; save();
-  }
-  function askPhone(){
-    addMsg("bot", "Thanks "+(state.name||"")+"! Best cell to text you a confirmation?");
-    state.step = "collect_phone"; save();
-  }
+  function askName(){ addMsg("bot", "Love it. What\u2019s your first name?"); state.step = "collect_name"; save(); }
+  function askPhone(){ addMsg("bot", "Thanks "+(state.name||"")+"! Best cell to text you a confirmation?"); state.step = "collect_phone"; save(); }
   function askWhen(){
     addMsg("bot", "What time works? We\u2019re open 10am-7pm today.");
     setQuick([
@@ -295,23 +296,6 @@
     state.step = "booked"; save();
   }
 
-  function route(v){
-    if(v === "call"){ addMsg("bot","Absolutely \u2014 <a href=\"tel:8037951194\">tap to call 803-795-1194</a>. Trey picks up 7 days a week."); return; }
-    if(v === "not_yet" || v === "not yet"){ addMsg("bot","No worries. Questions about brands, financing, or sizes?"); setQuick([{label:"Financing",value:"finance"},{label:"Brands",value:"brands"},{label:"Prices",value:"price"}]); return; }
-    if(v === "confirm_yes" || v === "confirm"){ return sendBooking(); }
-    if(v === "confirm_fix" || v === "fix"){ state.name=null; state.phone=null; state.when=null; save(); return askName(); }
-    if(v === "more" || v === "more info"){ addMsg("bot","What matters most to you?"); setQuick([{label:"Back support",value:"pain"},{label:"Cooling",value:"hot"},{label:"Brands",value:"brands"},{label:"Financing",value:"finance"}]); return; }
-    if(v === "brands"){ addMsg("bot","We carry Serta, Sealy, Simmons, Southerland, Malouf, and Allswell \u2014 all name brands at 50-80% off retail.\n\nWant to come see them?"); setQuick([{label:"Today",value:"book_today"},{label:"Tomorrow",value:"book_tomorrow"}]); return; }
-    if(v.startsWith("book_")){
-      const when = v.replace("book_","");
-      const map = {today:"today", tomorrow:"tomorrow", weekend:"this weekend"};
-      state.when = map[when] || when;
-      save();
-      return flowBooking();
-    }
-    baseRoute(v);
-  }
-
   function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
   function titleCase(s){ return s.replace(/\w\S*/g, w => w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()); }
   function normalizePhone(s){
@@ -321,20 +305,25 @@
     return null;
   }
 
-  document.addEventListener("DOMContentLoaded", function(){
-    build();
+  function init(){
+    if(!bindDom()) return;
     if(load() && state.messages.length){
       state.messages.forEach(m => {
-        const row = h("div",{class:"chat-msg chat-msg-"+m.role},[]);
-        const bub = h("div",{class:"chat-bubble"},[]);
+        const row = document.createElement("div");
+        row.className = "chat-msg chat-msg-" + m.role;
+        const bub = document.createElement("div");
+        bub.className = "chat-bubble";
         bub.innerHTML = m.text.replace(/\n/g,"<br>");
         row.appendChild(bub);
-        log.appendChild(row);
+        msgs.appendChild(row);
       });
-      log.scrollTop = log.scrollHeight;
+      msgs.scrollTop = msgs.scrollHeight;
     }
-    document.querySelectorAll("[data-chat]").forEach(el=>{
-      el.addEventListener("click", function(e){ e.preventDefault(); if(!panel.classList.contains("open")) togglePanel(); });
-    });
-  });
+  }
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
 })();
