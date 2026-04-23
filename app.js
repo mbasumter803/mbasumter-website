@@ -1,339 +1,99 @@
-// Mattress by Appointment Sumter — Elite Sleep Specialist v5
-// Two-track: Budget (finance-led) + Quality (adjustable/premium)
-// Hormozi offer-stack + Cardone conviction close
-(function () {
-  let state = { step:'greet', track:null, name:null, phone:null, size:null, pain:null, when:null, messages:[] };
-  const SS = sessionStorage;
-  const SS_KEY = 'mba_v5';
-  const SS_AUTO = 'mba_v5_auto';
-  let widget, toggle, box, closeBtn, msgs, quick, input, sendBtn;
-
-  function bindDom() {
-    widget  = document.getElementById('chatWidget');
-    toggle  = document.getElementById('chatToggle');
-    box     = document.getElementById('chatBox');
-    closeBtn= document.getElementById('chatClose');
-    msgs    = document.getElementById('chatMessages');
-    quick   = document.getElementById('chatQuickReplies');
-    input   = document.getElementById('chatInput');
-    sendBtn = document.getElementById('chatSend');
-    if (!widget) return false;
-    toggle.addEventListener('click', openChat);
-    closeBtn.addEventListener('click', closeChat);
-    sendBtn.addEventListener('click', submitTyped);
-    input.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); submitTyped(); } });
-    if (!document.getElementById('chatReset')) {
-      const rb = document.createElement('button');
-      rb.id = 'chatReset'; rb.title = 'Start over'; rb.setAttribute('aria-label','Start over');
-      rb.innerHTML = '&#8635;';
-      rb.style.cssText = 'background:transparent;border:none;color:#fff;font-size:20px;cursor:pointer;margin-right:8px;opacity:.7';
-      rb.addEventListener('click', function(){ if(confirm('Start a new conversation?')) resetAll(); });
-      closeBtn.parentNode.insertBefore(rb, closeBtn);
-    }
-    document.querySelectorAll('a,button').forEach(function(el){
-      if (['chatToggle','chatClose','chatReset','chatSend'].includes(el.id)) return;
-      const href = (el.getAttribute('href')||'').toLowerCase();
-      const txt  = (el.textContent||'').trim().toLowerCase();
-      if (href==='#chat'||href==='#book'||href==='#appointment'||el.dataset.chat!==undefined||
-          /^book (a |free |your |an )?appointment/.test(txt)||txt==='book now'||txt==='book appointment') {
-        el.addEventListener('click', function(e){ e.preventDefault(); openChat(); });
-      }
-    });
-    return true;
-  }
-
-  function openChat() {
-    widget.classList.add('open');
-    if (state.messages.length === 0) greet();
-    setTimeout(function(){ if(input) input.focus(); }, 150);
-  }
-  function closeChat() { widget.classList.remove('open'); }
-  function resetAll() {
-    SS.removeItem(SS_KEY);
-    state = { step:'greet', track:null, name:null, phone:null, size:null, pain:null, when:null, messages:[] };
-    msgs.innerHTML = ''; quick.innerHTML = '';
-    greet();
-  }
-  function save() { try { SS.setItem(SS_KEY, JSON.stringify(state)); } catch(e){} }
-  function load() {
-    try { const r=SS.getItem(SS_KEY); if(r){ state=JSON.parse(r); return true; } } catch(e){}
-    return false;
-  }
-  function addMsg(role, html) {
-    const row = document.createElement('div');
-    row.className = 'chat-msg chat-msg-' + role;
-    const bub = document.createElement('div');
-    bub.className = 'chat-bubble';
-    bub.innerHTML = html.replace(/\n/g,'<br>');
-    row.appendChild(bub);
-    msgs.appendChild(row);
-    msgs.scrollTop = msgs.scrollHeight;
-    state.messages.push({ role, text: html });
-    save();
-  }
-  function setQuick(opts) {
-    quick.innerHTML = '';
-    (opts||[]).forEach(function(opt){
-      const b = document.createElement('button');
-      b.className = 'chat-quick-btn';
-      b.textContent = opt.label || opt;
-      b.addEventListener('click', function(){ onQuick(opt); });
-      quick.appendChild(b);
-    });
-  }
-  function onQuick(opt) {
-    addMsg('user', opt.label || opt);
-    quick.innerHTML = '';
-    route(opt.value || (opt.label||opt).toLowerCase());
-  }
-  function submitTyped() {
-    const v = (input.value||'').trim();
-    if (!v) return;
-    input.value = '';
-    addMsg('user', esc(v));
-    quick.innerHTML = '';
-    route(v.toLowerCase());
-  }
-  function esc(s) { return s.replace(/[&<>"]/g, function(c){ return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]); }); }
-  function cap(s) { return s.charAt(0).toUpperCase()+s.slice(1); }
-  function titleCase(s) { return s.replace(/\w\S*/g, function(w){ return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase(); }); }
-  function normPhone(s) {
-    const d=(s.match(/\d/g)||[]).join('');
-    if(d.length===10) return d.slice(0,3)+'-'+d.slice(3,6)+'-'+d.slice(6);
-    if(d.length===11&&d[0]==='1') return d.slice(1,4)+'-'+d.slice(4,7)+'-'+d.slice(7);
-    return null;
-  }
-
-  function greet() {
-    const h = new Date().getHours();
-    const g = h<12 ? 'Good morning' : h<17 ? 'Good afternoon' : 'Good evening';
-    addMsg('bot', g + "! I'm your Sleep Specialist at <b>Mattress by Appointment Sumter</b>.\n\nWhat brings you in today?");
-    setQuick([
-      {label:'I need a new mattress', value:'need_new'},
-      {label:'Checking prices',       value:'price'},
-      {label:'Back or sleep pain',    value:'pain'},
-      {label:'Adjustable base',       value:'adjustable'},
-      {label:'Just browsing',         value:'browsing'}
-    ]);
-    state.step = 'discovery';
-    save();
-  }
-
-  function route(v) {
-    if (v==='call') return addMsg('bot','<a href="tel:8037951194"><b>Tap to call 803-795-1194</b></a> — Trey picks up 7 days a week, 10am-7pm.');
-    if (v==='confirm_yes') return sendBooking();
-    if (v==='confirm_fix') { state.name=null; state.phone=null; state.when=null; save(); return askName(); }
-    if (v==='not_yet') return handleNotYet();
-    if (v.startsWith('book_')) {
-      const map = {book_today:'today',book_tomorrow:'tomorrow',book_weekend:'this weekend',book_now:'right now'};
-      state.when = map[v] || v.replace('book_','');
-      save();
-      return flowBooking();
-    }
-    if (/book|appoint|schedul|come in|stop by|visit|walk.?in/.test(v)) return flowBooking();
-    if (/price|cost|how much|cheap|afford|deal/.test(v)||v==='price') return answerPrice();
-    if (/queen/.test(v)) return answerSize('queen');
-    if (/king/.test(v)) return answerSize('king');
-    if (/full|double/.test(v)) return answerSize('full');
-    if (/twin/.test(v)) return answerSize('twin');
-    if (/adjust|base|remote|elevation|head|foot|zero.?grav/.test(v)||v==='adjustable') return answerAdjustable();
-    if (/back|pain|hurt|sore|hip|shoulder|neck|spine/.test(v)||v==='pain') return answerPain();
-    if (/hot|sweat|cool|temp/.test(v)) return answerHot();
-    if (/finance|credit|snap|payment|monthly|qualify|bad.?credit|no.?credit/.test(v)) return answerFinance();
-    if (/brand|serta|sealy|simmons|malouf|allswell|southerland/.test(v)) return answerBrands();
-    if (/deliver|pickup|take.?home|car|fit|box/.test(v)) return answerDelivery();
-    if (/warrant|return|exchange|guarantee/.test(v)) return answerWarranty();
-    if (/hour|open|close|today|tonight|weekend|sunday|monday|saturday/.test(v)) return answerHours();
-    if (/address|where|location|direction|map/.test(v)) return answerAddress();
-    if (/pillow|sheet|accessory|protector/.test(v)) return answerAccessory();
-    if (/firm|soft|medium|plush/.test(v)) return answerFirmness();
-    if (/couple|partner|two.?people|husband|wife|spouse/.test(v)) return answerCouple();
-    if (/child|kid|bunk|teen/.test(v)) return answerKid();
-    if (/compare|mattress.?firm|ashley|amazon|online|wayfair/.test(v)) return answerCompare();
-    if (/same.?day|take.?tonight|take.?home.?tonight/.test(v)) return answerSameDay();
-    if (/browsing|looking|just.?look/.test(v)||v==='browsing') return answerBrowsing();
-    if (/need_new|need|new mattress|replac|upgrad/.test(v)) return answerNeedNew();
-    if (state.step==='collect_name') { state.name=titleCase(v); save(); return askPhone(); }
-    if (state.step==='collect_phone') {
-      const p=normPhone(v);
-      if(!p){ addMsg('bot','Could you send that number again? 10 digits like 803-555-0123.'); return; }
-      state.phone=p; save(); return askWhen();
-    }
-    if (state.step==='collect_when') { state.when=v; save(); return confirmBooking(); }
-    addMsg('bot','Great question — and honestly the truest answer is: <b>a mattress is something your body has to tell you about.</b> No picture or review can tell you what 10 minutes in our showroom will.\n\nWhen can you come in?');
-    setQuick([{label:'Today',value:'book_today'},{label:'Tomorrow',value:'book_tomorrow'},{label:'This weekend',value:'book_weekend'},{label:'Call us',value:'call'}]);
-  }
-
-  function answerPrice() {
-    state.track = 'budget';
-    addMsg('bot','Straight talk:\n\n- Twin from <b>$130</b> (retail $449)\n- Full from <b>$140</b> (retail $599)\n- Queen from <b>$150</b> (retail $699)\n- King from <b>$275</b> (retail $1,199)\n\nAll name-brand. All 50-80% off retail. And if budget is tight — <b>$5 gets you out the door today</b> with Snap Finance, 90-day payoff option.\n\nWhen can you come lay on a few?');
-    setQuick([{label:'Today',value:'book_today'},{label:'This weekend',value:'book_weekend'},{label:'Tell me about financing',value:'finance'}]);
-    state.step='closing'; save();
-  }
-  function answerSize(size) {
-    const p = {twin:{o:130,r:449},full:{o:140,r:599},queen:{o:150,r:699},king:{o:275,r:1199}}[size];
-    addMsg('bot',cap(size)+'s start at <b>$'+p.o+'</b>. That same bed retails for $'+p.r+' at the chains.\n\nYou will sleep on this mattress roughly 3,000 nights. Spending 10 minutes laying on a few beds to find the right one is the smartest decision you can make. Your body will know immediately.\n\nWhat time works?');
-    setQuick([{label:'Today',value:'book_today'},{label:'Tomorrow',value:'book_tomorrow'},{label:'This weekend',value:'book_weekend'}]);
-    state.size=size; state.step='closing'; save();
-  }
-  function answerAdjustable() {
-    state.track = 'quality';
-    addMsg('bot','<b>Adjustable bases are a game-changer</b> — especially for back pain, snoring, acid reflux, or couples with different comfort needs.\n\nWe carry premium adjustable systems with wireless remote, head and foot elevation, zero-gravity position, and under-bed lighting. Queen adjustable systems starting around <b>$999</b>, King from <b>$1,299</b> — well below what you would pay at a chain.\n\nThis is something you need to try in person. One minute in the bed and you will wonder how you slept flat your whole life. When can you come in?');
-    setQuick([{label:'Today',value:'book_today'},{label:'Tomorrow',value:'book_tomorrow'},{label:'This weekend',value:'book_weekend'}]);
-    state.size='queen'; state.step='closing'; save();
-  }
-  function answerPain() {
-    addMsg('bot','Back and hip pain from a bad mattress is one of the most common — and most fixable — problems people put up with for years.\n\nThe right mattress for back pain depends entirely on your body type, sleep position, and what is actually causing the pain. A mattress that fixes one person can destroy another.\n\nThat is exactly why we do appointments. Trey will walk you through 3-4 options and you will know which one is right within 2 beds. Most people leave same day.\n\nReady to fix this? What time works?');
-    setQuick([{label:'Today',value:'book_today'},{label:'Tomorrow',value:'book_tomorrow'},{label:'This weekend',value:'book_weekend'}]);
-    state.pain='back/hip pain'; state.step='closing'; save();
-  }
-  function answerHot() {
-    addMsg('bot','Sleeping hot is usually a mattress problem — dense foam traps body heat with no airflow.\n\nWe carry cooling-gel and hybrid beds designed to sleep significantly cooler. The difference is real and you feel it immediately.\n\nCome try one. 10 minutes vs. years of waking up sweating. Easy decision. When works?');
-    setQuick([{label:'Today',value:'book_today'},{label:'Tomorrow',value:'book_tomorrow'},{label:'This weekend',value:'book_weekend'}]);
-    state.pain='sleeps hot'; state.step='closing'; save();
-  }
-  function answerFinance() {
-    state.track='budget';
-    addMsg('bot','No credit? Bad credit? Does not matter here.\n\n<b>Snap Finance</b> — no credit needed, up to $4,000, 90-day same-as-cash option. Pre-qualify in about 2 minutes in-store.\n\n<b>$5 down</b> gets you sleeping on a name-brand mattress tonight. You have been putting this off long enough.\n\nWant to come in and pre-qualify while you test beds?');
-    setQuick([{label:'Today',value:'book_today'},{label:'Tomorrow',value:'book_tomorrow'},{label:'What are the prices?',value:'price'}]);
-    state.step='closing'; save();
-  }
-  function answerBrands() {
-    addMsg('bot','We carry <b>Serta, Sealy, Simmons, Southerland, Malouf,</b> and <b>Allswell</b> — the same name brands at Mattress Firm or Ashley, at 50-80% below their price.\n\nSmall independent operation, low overhead. That savings goes directly to you.\n\nWant to come see the lineup?');
-    setQuick([{label:'Today',value:'book_today'},{label:'This weekend',value:'book_weekend'},{label:'What are the prices?',value:'price'}]);
-    state.step='closing'; save();
-  }
-  function answerDelivery() {
-    addMsg('bot','Every mattress comes rolled in a box — fits in any car, even a sedan.\n\n<b>Take it home tonight.</b> Open the box, let it expand, done. No delivery truck, no scheduling windows.\n\nThat is one more reason to come in today. When works?');
-    setQuick([{label:'Today',value:'book_today'},{label:'Tomorrow',value:'book_tomorrow'}]);
-    state.step='closing'; save();
-  }
-  function answerWarranty() {
-    addMsg('bot','Full manufacturer warranty — 10 years on most beds. And you deal with Trey directly, not a 1-800 number.\n\nThat is the advantage of a local shop. Come see the difference. When can you stop by?');
-    setQuick([{label:'Today',value:'book_today'},{label:'Tomorrow',value:'book_tomorrow'}]);
-    state.step='closing'; save();
-  }
-  function answerHours() {
-    addMsg('bot','Open <b>7 days a week, 10am-7pm</b>. Same-day appointments welcome — you come in, you get Trey full attention.\n\nWhat time works for you?');
-    setQuick([{label:'Today',value:'book_today'},{label:'Tomorrow',value:'book_tomorrow'},{label:'This weekend',value:'book_weekend'}]);
-    state.step='closing'; save();
-  }
-  function answerAddress() {
-    addMsg('bot','<b>1809 Hwy 15 South, Sumter SC 29150</b>\n<a href="https://www.google.com/maps/search/?api=1&query=1809+Hwy+15+South+Sumter+SC+29150" target="_blank">Get directions</a>\n\nEasy to find, free parking right in front. When should I tell Trey to expect you?');
-    setQuick([{label:'Today',value:'book_today'},{label:'Tomorrow',value:'book_tomorrow'}]);
-    state.step='closing'; save();
-  }
-  function answerFirmness() {
-    addMsg('bot','Firmness is one of the most personal things about a mattress — and most misunderstood.\n\nToo firm creates pressure points at hips and shoulders. Too soft, your spine sags. The sweet spot depends entirely on your body weight and sleep position.\n\n<b>This is impossible to figure out from a website.</b> 5 minutes laying on beds and you will know exactly. When works?');
-    setQuick([{label:'Today',value:'book_today'},{label:'Tomorrow',value:'book_tomorrow'},{label:'This weekend',value:'book_weekend'}]);
-    state.step='closing'; save();
-  }
-  function answerCouple() {
-    addMsg('bot','Important point — if two people are sleeping in the bed, they both need to try it.\n\nDifferent body types, sleep positions, pain points. A perfect mattress for one partner can be wrong for the other.\n\n<b>Bring whoever will be sleeping on it.</b> We will find what works for both of you. When can you both come in?');
-    setQuick([{label:'Today',value:'book_today'},{label:'This weekend',value:'book_weekend'}]);
-    state.step='closing'; save();
-  }
-  function answerKid() {
-    addMsg('bot','Kids go through mattresses fast. Good news: twins and fulls are our most affordable options.\n\nTwin from <b>$130</b>, Full from <b>$140</b>. Take it home in a box today.\n\nWhen can you come in?');
-    setQuick([{label:'Today',value:'book_today'},{label:'Tomorrow',value:'book_tomorrow'}]);
-    state.step='closing'; save();
-  }
-  function answerCompare() {
-    addMsg('bot','You should compare — here is the honest difference: big chains have $800 in marketing and rent baked into every price. We do not. Same Serta, same Sealy — our Queen starts at <b>$150</b> vs $699+ at the chains.\n\nAnd online? You are guessing. No return policy gives you back months of bad sleep.\n\nThe smartest move is to come lay on it first. 10 minutes tells you more than 10 hours of reviews. When can you come in?');
-    setQuick([{label:'Today',value:'book_today'},{label:'This weekend',value:'book_weekend'},{label:'What are the prices?',value:'price'}]);
-    state.step='closing'; save();
-  }
-  function answerSameDay() {
-    addMsg('bot','Yes — <b>same day, take it home tonight.</b> Every mattress comes in a box, fits in any car. You can be sleeping on a brand new name-brand mattress tonight.\n\nCome in, lay on a few, pick the right one. What time works?');
-    setQuick([{label:'Within 1 hour',value:'in 1 hour'},{label:'This afternoon',value:'this afternoon'},{label:'This evening',value:'this evening'}]);
-    state.step='closing'; save();
-  }
-  function answerAccessory() {
-    addMsg('bot','Yes — we carry pillows, mattress protectors, and bed accessories. Trey can walk you through what pairs best with whichever mattress you pick.\n\nAll part of the same appointment. When works?');
-    setQuick([{label:'Today',value:'book_today'},{label:'Tomorrow',value:'book_tomorrow'}]);
-    state.step='closing'; save();
-  }
-  function answerBrowsing() {
-    addMsg('bot','Totally get it — no pressure.\n\nHere is something worth thinking about: you will spend about <b>25,000 hours</b> on your next mattress. Most people who come in just to look spend 10 minutes, find the right bed, and leave wondering why they waited so long.\n\nNo hard sell. No commission games. Just come lay on a few. Zero risk. When can you stop by?');
-    setQuick([{label:'Sure, today',value:'book_today'},{label:'This weekend',value:'book_weekend'},{label:'Not ready yet',value:'not_yet'}]);
-    state.step='closing'; save();
-  }
-  function answerNeedNew() {
-    addMsg('bot','You are in the right place. What size are you working with?');
-    setQuick([{label:'Twin',value:'twin'},{label:'Full',value:'full'},{label:'Queen',value:'queen'},{label:'King',value:'king'}]);
-    state.step='sizing'; save();
-  }
-  function handleNotYet() {
-    addMsg('bot','No problem at all. Can I answer anything else — pricing, brands, financing, or how the process works?');
-    setQuick([{label:'Pricing',value:'price'},{label:'Financing',value:'finance'},{label:'Brands',value:'brands'},{label:'Adjustable bases',value:'adjustable'}]);
-  }
-
-  function flowBooking() {
-    if (!state.name) return askName();
-    if (!state.phone) return askPhone();
-    if (!state.when) return askWhen();
-    return confirmBooking();
-  }
-  function askName() {
-    addMsg('bot','Perfect. Quick — what is your first name?');
-    state.step='collect_name'; save();
-  }
-  function askPhone() {
-    addMsg('bot','Thanks ' + (state.name||'') + '! What is the best cell number to text you a confirmation?');
-    state.step='collect_phone'; save();
-  }
-  function askWhen() {
-    addMsg('bot','Almost there — what time works? We are open 10am-7pm.');
-    setQuick([{label:'Within 1 hour',value:'in 1 hour'},{label:'This afternoon',value:'this afternoon'},{label:'This evening',value:'this evening'},{label:'Tomorrow',value:'tomorrow'},{label:'This weekend',value:'this weekend'}]);
-    state.step='collect_when'; save();
-  }
-  function confirmBooking() {
-    let s = '- Name: <b>'+state.name+'</b>\n- Phone: <b>'+state.phone+'</b>\n- When: <b>'+state.when+'</b>';
-    if (state.size) s += '\n- Size: <b>'+cap(state.size)+'</b>';
-    if (state.pain) s += '\n- Focus: <b>'+state.pain+'</b>';
-    addMsg('bot','Here is what I have got:\n\n'+s+'\n\nLook right?');
-    setQuick([{label:'Yes, book it!',value:'confirm_yes'},{label:'Fix something',value:'confirm_fix'}]);
-    state.step='confirming'; save();
-  }
-  async function sendBooking() {
-    addMsg('bot','Locking it in...');
-    try {
-      await fetch('/api/book', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({ name:state.name, phone:state.phone, when:state.when, size:state.size||'?', pain:state.pain||'?', source:'website-chat', timestamp:new Date().toISOString() })
-      });
-    } catch(e){}
-    addMsg('bot','<b>You are on the calendar!</b> Trey has been notified and will call to confirm your time.\n\nYou will also get a text confirmation at '+state.phone+'.\n\n<b>1809 Hwy 15 S, Sumter SC 29150</b>\n\nRemember to bring:\n- Photo ID\n- Bank info if interested in financing\n- Anyone sleeping on the bed\n\nSee you soon! — MBA Sumter');
-    state.step='booked'; save();
-  }
-
-  function maybeAutoOpen() {
-    try {
-      if (SS.getItem(SS_AUTO)) return;
-      const isMobile = window.innerWidth < 768;
-      setTimeout(function(){
-        if (!widget || widget.classList.contains('open')) return;
-        SS.setItem(SS_AUTO,'1');
-        openChat();
-      }, isMobile ? 7000 : 5000);
-    } catch(e){}
-  }
-
-  function init() {
-    if (!bindDom()) return;
-    maybeAutoOpen();
-    if (load() && state.messages.length) {
-      state.messages.forEach(function(m){
-        const row=document.createElement('div'); row.className='chat-msg chat-msg-'+m.role;
-        const bub=document.createElement('div'); bub.className='chat-bubble';
-        bub.innerHTML=m.text.replace(/\n/g,'<br>');
-        row.appendChild(bub); msgs.appendChild(row);
-      });
-      msgs.scrollTop=msgs.scrollHeight;
-    }
-  }
-
-  if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
-  else init();
+// MBA Sumter Sleep Specialist v6 — Pain-first, 30-min slots, smart two-track
+(function(){
+'use strict';
+var state={step:'greet',track:null,name:null,phone:null,size:null,pain:null,day:null,time:null,messages:[]};
+var SS=sessionStorage,SS_KEY='mba_v6',SS_AUTO='mba_v6_auto';
+var SLOTS=['10:00 AM','10:30 AM','11:00 AM','11:30 AM','12:00 PM','12:30 PM','1:00 PM','1:30 PM','2:00 PM','2:30 PM','3:00 PM','3:30 PM','4:00 PM','4:30 PM','5:00 PM','5:30 PM','6:00 PM','6:30 PM'];
+var widget,toggle,box,closeBtn,msgs,quick,input,sendBtn;
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function titleCase(s){return s.replace(/[a-zA-Z][a-zA-Z]*/g,function(w){return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();});}
+function hi(){return state.name?esc(state.name.split(' ')[0]):'';}
+function normPhone(s){var d=(s.match(/[0-9]/g)||[]).join('');if(d.length===10)return d.slice(0,3)+'-'+d.slice(3,6)+'-'+d.slice(6);if(d.length===11&&d[0]==='1')return d.slice(1,4)+'-'+d.slice(4,7)+'-'+d.slice(7);return null;}
+function save(){try{SS.setItem(SS_KEY,JSON.stringify(state));}catch(e){}}
+function load(){try{var r=SS.getItem(SS_KEY);if(r){state=JSON.parse(r);return true;}}catch(e){}return false;}
+function bindDom(){
+  widget=document.getElementById('chatWidget');toggle=document.getElementById('chatToggle');box=document.getElementById('chatBox');closeBtn=document.getElementById('chatClose');msgs=document.getElementById('chatMessages');quick=document.getElementById('chatQuickReplies');input=document.getElementById('chatInput');sendBtn=document.getElementById('chatSend');
+  if(!widget)return false;
+  toggle.addEventListener('click',openChat);closeBtn.addEventListener('click',closeChat);sendBtn.addEventListener('click',submitTyped);
+  input.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();submitTyped();}});
+  if(!document.getElementById('chatReset')){var rb=document.createElement('button');rb.id='chatReset';rb.title='Start over';rb.setAttribute('aria-label','Start over');rb.innerHTML='&#8635;';rb.style.cssText='background:transparent;border:none;color:#fff;font-size:20px;cursor:pointer;margin-right:8px;opacity:.7';rb.addEventListener('click',function(){if(confirm('Start fresh?'))resetAll();});closeBtn.parentNode.insertBefore(rb,closeBtn);}
+  document.querySelectorAll('a,button').forEach(function(el){if(['chatToggle','chatClose','chatReset','chatSend'].indexOf(el.id)>-1)return;var href=(el.getAttribute('href')||'').toLowerCase();var txt=(el.textContent||'').trim().toLowerCase();if(href==='#chat'||href==='#book'||href==='#appointment'||el.dataset.chat!==undefined||txt==='book now'||txt==='book appointment'||/^book (a |free |your |an )?appointment/.test(txt)){el.addEventListener('click',function(e){e.preventDefault();openChat();});}});
+  return true;
+}
+function openChat(){widget.classList.add('open');if(state.messages.length===0)greet();setTimeout(function(){if(input)input.focus();},200);}
+function closeChat(){widget.classList.remove('open');}
+function resetAll(){SS.removeItem(SS_KEY);state={step:'greet',track:null,name:null,phone:null,size:null,pain:null,day:null,time:null,messages:[]};msgs.innerHTML='';quick.innerHTML='';greet();}
+function addMsg(role,html){var row=document.createElement('div');row.className='chat-msg chat-msg-'+role;var bub=document.createElement('div');bub.className='chat-bubble';bub.innerHTML=html;row.appendChild(bub);msgs.appendChild(row);msgs.scrollTop=msgs.scrollHeight;state.messages.push({role:role,text:html});save();}
+function setQuick(opts){quick.innerHTML='';(opts||[]).forEach(function(opt){var b=document.createElement('button');b.className='chat-quick-btn';b.textContent=opt.label||opt;b.addEventListener('click',function(){onQuick(opt);});quick.appendChild(b);});}
+function onQuick(opt){addMsg('user',opt.label||opt);quick.innerHTML='';route(opt.value||(opt.label||opt).toLowerCase());}
+function submitTyped(){var v=(input.value||'').trim();if(!v)return;input.value='';addMsg('user',esc(v));quick.innerHTML='';route(v.toLowerCase());}
+function greet(){var h=new Date().getHours();var g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';addMsg('bot',g+'! I&#39;m the Sleep Specialist for <b>Mattress by Appointment Sumter</b>.<br><br>Quick question &#8212; what&#39;s going on with your current sleep situation?');setQuick([{label:'My mattress is old / worn out',value:'old_mattress'},{label:'Back or body pain',value:'pain'},{label:'Sleeping hot / not comfortable',value:'hot'},{label:'Looking for an upgrade',value:'upgrade'},{label:'Just checking prices',value:'price'}]);state.step='discovery';save();}
+function route(v){
+  if(v==='confirm_yes')return sendBooking();
+  if(v==='confirm_fix'){state.name=null;state.phone=null;state.day=null;state.time=null;save();return askName();}
+  if(v==='not_yet')return handleNotYet();
+  if(v==='call_us')return addMsg('bot','<a href="tel:8037951194"><b>Tap to call 803-795-1194</b></a> &#8212; Trey answers 7 days a week, 10am-7pm.');
+  if(v==='today'||v==='tomorrow'||v==='saturday'||v==='sunday'||v==='this_weekend'){state.day=v==='this_weekend'?'Saturday':cap(v);save();return askTime();}
+  if(v.indexOf('slot_')===0){state.time=v.replace('slot_','');save();if(!state.name)return askName();if(!state.phone)return askPhone();return confirmBooking();}
+  if(state.step==='collect_name'){if(v.length<2||/[0-9]/.test(v)){addMsg('bot','Just your first name works!');return;}state.name=titleCase(v);save();return askPhone();}
+  if(state.step==='collect_phone'){var p=normPhone(v);if(!p){addMsg('bot','Hmm, that does not look right. Try your 10-digit number like 803-555-0123.');return;}state.phone=p;save();if(!state.day)return askDay();if(!state.time)return askTime();return confirmBooking();}
+  if(/price|cost|how much|cheap|afford|deal|starting/.test(v)||v==='price')return answerPrice();
+  if(/queen/.test(v)&&!/adjust|base/.test(v))return answerSize('queen');
+  if(/king/.test(v)&&!/adjust|base/.test(v))return answerSize('king');
+  if(/full|double/.test(v))return answerSize('full');
+  if(/twin/.test(v))return answerSize('twin');
+  if(/adjust|base|remote|elevat|zero.?grav|snor/.test(v)||v==='adjustable')return answerAdjustable();
+  if(/back|pain|hurt|sore|hip|shoulder|neck|spine|ache/.test(v)||v==='pain')return answerPain();
+  if(/hot|sweat|cool|temp|night.?sweat/.test(v)||v==='hot')return answerHot();
+  if(/old|worn|sag|spring|poke|lumpy|dip|sink|broke|replace|upgrade/.test(v)||v==='old_mattress'||v==='upgrade')return answerNeedNew();
+  if(/financ|credit|snap|payment|monthly|qualify|afford/.test(v))return answerFinance();
+  if(/brand|serta|sealy|simmons|malouf|allswell|southerland/.test(v))return answerBrands();
+  if(/deliver|pickup|take.?home|ship|box|roll/.test(v))return answerDelivery();
+  if(/warrant|return|exchange|guarantee/.test(v))return answerWarranty();
+  if(/hour|open|close|when.?(are|do).?you|schedule/.test(v))return answerHours();
+  if(/address|where|location|direction|map|hwy/.test(v))return answerAddress();
+  if(/firm|soft|medium|plush|comfort|feel|which.?mattress/.test(v))return answerFirmness();
+  if(/couple|partner|husband|wife|spouse|both/.test(v))return answerCouple();
+  if(/child|kid|bunk|teen|daughter|son/.test(v))return answerKid();
+  if(/compare|mattress.?firm|ashley|amazon|online|wayfair|review/.test(v))return answerCompare();
+  if(/same.?day|take.?home.?tonight/.test(v))return answerSameDay();
+  if(/think|later|not.?sure|maybe|considering/.test(v))return handleNotYet();
+  if(/just.?look|just.?brows|no.?rush|shop.?around/.test(v))return answerBrowsing();
+  if(/pillow|sheet|accessor|protector|frame|foundation/.test(v))return answerAccessory();
+  if(/yes|yeah|sure|ok|okay|sounds.?good|ready/.test(v)&&state.step==='closing')return flowBooking();
+  addMsg('bot',(hi()?hi()+', great question. ':'')+'Here is the truth &#8212; <b>the right mattress is something your body tells you, not a website.</b><br><br>10 minutes in our showroom and you will know immediately. When can you come in?');
+  setQuick([{label:'Book today',value:'today'},{label:'Tomorrow',value:'tomorrow'},{label:'This weekend',value:'this_weekend'},{label:'Call us',value:'call_us'}]);
+  state.step='closing';save();
+}
+function answerPrice(){state.track='budget';addMsg('bot','Straight up &#8212; here is what we carry:<br><br>Twin from <b>$130</b> <s style="color:#999;font-size:12px">retail $449</s><br>Full from <b>$140</b> <s style="color:#999;font-size:12px">retail $599</s><br>Queen from <b>$150</b> <s style="color:#999;font-size:12px">retail $699</s><br>King from <b>$275</b> <s style="color:#999;font-size:12px">retail $1,199</s><br><br>All name-brand. All 50-80% off retail. Budget tight? <b>$5 down gets you out the door today</b> with Snap Finance, 90-day payoff option.<br><br>When do you want to come try a few?');setQuick([{label:'Come in today',value:'today'},{label:'This weekend',value:'this_weekend'},{label:'Tell me about financing',value:'finance'},{label:'What sizes do you have?',value:'old_mattress'}]);state.step='closing';save();}
+function answerSize(sz){var p={twin:{o:130,r:449},full:{o:140,r:599},queen:{o:150,r:699},king:{o:275,r:1199}}[sz];state.size=sz;state.track='budget';addMsg('bot',cap(sz)+'s start at <b>$'+p.o+'</b> &#8212; same brand you would pay $'+p.r+' for at Mattress Firm.<br><br>You will sleep on this mattress roughly 3,000 nights. 10 minutes laying on a few and your body tells you immediately &#8212; no guessing.<br><br>When works for you?');setQuick([{label:'Today',value:'today'},{label:'Tomorrow',value:'tomorrow'},{label:'This weekend',value:'this_weekend'}]);state.step='closing';save();}
+function answerAdjustable(){state.track='quality';addMsg('bot','<b>Adjustable bases are a total game-changer.</b><br><br>Wireless remote, head and foot elevation, zero-gravity position, under-bed lighting. You try one once and you wonder how you slept flat your whole life.<br><br>Queen adjustable systems from <b>$999</b>, King from <b>$1,299</b> &#8212; well below chain pricing.<br><br>One visit and you will understand immediately. When can you come in?');setQuick([{label:'Today',value:'today'},{label:'Tomorrow',value:'tomorrow'},{label:'This weekend',value:'this_weekend'}]);state.size='queen';state.step='closing';save();}
+function answerPain(){state.pain='back/body pain';addMsg('bot','Back and hip pain from a bad mattress is one of the most common &#8212; and most fixable &#8212; problems people live with for years.<br><br>The right mattress depends entirely on your body weight, sleep position, and what is actually causing the issue. A bed that fixes one person can make another worse.<br><br>That is exactly why we do appointments. Trey walks you through a few options &#8212; most people find the right bed in 2-3 tries and leave the same day.<br><br>'+(hi()?hi()+', when':'When')+' can you come in?');setQuick([{label:'Today &#8212; I need this fixed',value:'today'},{label:'Tomorrow',value:'tomorrow'},{label:'This weekend',value:'this_weekend'}]);state.step='closing';save();}
+function answerHot(){state.pain='sleeps hot';addMsg('bot','Sleeping hot is almost always a mattress problem &#8212; dense foam traps body heat with no airflow.<br><br>We carry cooling-gel and open-coil hybrid beds that sleep significantly cooler. The difference is real &#8212; you feel it the moment you lay down.<br><br>10 minutes vs years of waking up at 3am. Easy call. When works?');setQuick([{label:'Today',value:'today'},{label:'Tomorrow',value:'tomorrow'},{label:'This weekend',value:'this_weekend'}]);state.step='closing';save();}
+function answerNeedNew(){addMsg('bot',(hi()?'Got it, '+hi()+'. ':'')+'You are in the right place. What size are you working with?');setQuick([{label:'Twin',value:'twin'},{label:'Full',value:'full'},{label:'Queen',value:'queen'},{label:'King',value:'king'},{label:'Not sure yet',value:'firmness'}]);state.step='sizing';save();}
+function answerFinance(){state.track='budget';addMsg('bot','No credit? Bad credit? Does not matter here.<br><br><b>Snap Finance</b> &#8212; no credit needed, up to $4,000, 90-day same-as-cash option. Pre-qualify in the store in about 2 minutes.<br><br><b>$5 down</b> gets you sleeping on a name-brand mattress tonight. You have been putting this off long enough.<br><br>Come in, test the beds, and we will get you sorted out.');setQuick([{label:'Today',value:'today'},{label:'Tomorrow',value:'tomorrow'},{label:'What are the prices?',value:'price'}]);state.step='closing';save();}
+function answerBrands(){addMsg('bot','We carry <b>Serta, Sealy, Simmons, Southerland, Malouf,</b> and <b>Allswell</b> &#8212; exact same brands as Mattress Firm, at 50-80% below their prices.<br><br>Small operation, low overhead. That savings goes directly to you.<br><br>Want to come see the lineup?');setQuick([{label:'Today',value:'today'},{label:'This weekend',value:'this_weekend'},{label:'What are the prices?',value:'price'}]);state.step='closing';save();}
+function answerDelivery(){addMsg('bot','Every mattress comes rolled and compressed in a box &#8212; fits in any car, even a sedan.<br><br><b>Take it home tonight.</b> No delivery truck, no scheduling window, no waiting.<br><br>When do you want to come pick yours up?');setQuick([{label:'Today',value:'today'},{label:'Tomorrow',value:'tomorrow'}]);state.step='closing';save();}
+function answerWarranty(){addMsg('bot','Full manufacturer warranty &#8212; 10 years on most models. And you deal with Trey directly, not a 1-800 number reading a script.<br><br>That is the advantage of a local shop. When can you stop by?');setQuick([{label:'Today',value:'today'},{label:'Tomorrow',value:'tomorrow'},{label:'This weekend',value:'this_weekend'}]);state.step='closing';save();}
+function answerHours(){addMsg('bot','Open <b>7 days a week, 10am-7pm</b>. Same-day appointments welcome &#8212; you come in and get Trey&#39;s full attention from the moment you walk through the door.<br><br>What time works?');setQuick([{label:'Today',value:'today'},{label:'Tomorrow',value:'tomorrow'},{label:'This weekend',value:'this_weekend'}]);state.step='closing';save();}
+function answerAddress(){addMsg('bot','<b>1809 Hwy 15 South, Sumter SC 29150</b><br><a href="https://www.google.com/maps/search/?api=1&query=1809+Hwy+15+South+Sumter+SC+29150" target="_blank" style="color:#d4a017;font-weight:700">Get directions</a><br><br>Free parking right out front. When should I tell Trey to expect you?');setQuick([{label:'Today',value:'today'},{label:'Tomorrow',value:'tomorrow'},{label:'This weekend',value:'this_weekend'}]);state.step='closing';save();}
+function answerFirmness(){addMsg('bot','Firmness is one of the most personal &#8212; and most misunderstood &#8212; things about a mattress.<br><br>Too firm creates pressure points at hips and shoulders. Too soft, your spine sags. The right spot depends on your body weight and sleep position.<br><br><b>Impossible to figure out online.</b> 5 minutes laying on a few beds and your body tells you. Most people are surprised by what they actually prefer.<br><br>When can you come find out?');setQuick([{label:'Today',value:'today'},{label:'Tomorrow',value:'tomorrow'},{label:'This weekend',value:'this_weekend'}]);state.step='closing';save();}
+function answerCouple(){addMsg('bot','Important &#8212; if two people are sleeping in the bed, both need to try it.<br><br>Different body types and sleep positions mean a perfect mattress for one can be wrong for the other. We see this all the time.<br><br><b>Bring whoever is sleeping on it.</b> We will find something that works for both &#8212; and it saves you a second trip.<br><br>When can you both come in?');setQuick([{label:'Today',value:'today'},{label:'This weekend',value:'this_weekend'}]);state.step='closing';save();}
+function answerKid(){state.track='budget';addMsg('bot','Kids go through mattresses fast &#8212; so we keep it simple and affordable.<br><br>Twin from <b>$130</b>, Full from <b>$140</b>. Rolls up, fits in any car, take it home today.<br><br>When can you come in?');setQuick([{label:'Today',value:'today'},{label:'Tomorrow',value:'tomorrow'}]);state.step='closing';save();}
+function answerCompare(){addMsg('bot','You should compare &#8212; here is the honest truth:<br><br>Big chains have $600-$800 in rent, commissions, and advertising baked into every price. We do not. Same Serta, same Sealy &#8212; our Queen starts at <b>$150</b> vs $699+ at the chains.<br><br>Online? You are guessing. No return policy gives you back weeks of bad sleep.<br><br>10 minutes in person tells you more than 10 hours of reviews. When can you come in?');setQuick([{label:'Today',value:'today'},{label:'This weekend',value:'this_weekend'},{label:'Check prices',value:'price'}]);state.step='closing';save();}
+function answerSameDay(){addMsg('bot','Yes &#8212; <b>same day, take it home tonight.</b> Every mattress comes in a box, fits in any car.<br><br>What time today works for you?');state.day='Today';save();setTimeout(function(){askTime();},600);}
+function answerBrowsing(){addMsg('bot','Totally get it &#8212; no pressure at all.<br><br>Worth knowing: you will spend about <b>25,000 hours</b> on your next mattress. Most people who come in just to look spend 10 minutes, find the right bed, and leave wondering why they waited.<br><br>No hard sell. Zero risk. When can you stop by?');setQuick([{label:'Sure &#8212; today',value:'today'},{label:'This weekend',value:'this_weekend'},{label:'Not ready yet',value:'not_yet'}]);state.step='closing';save();}
+function answerAccessory(){addMsg('bot','Yes &#8212; we carry pillows, mattress protectors, and accessories. Trey will match you with what pairs best with your mattress. All part of the same appointment.<br><br>When works?');setQuick([{label:'Today',value:'today'},{label:'Tomorrow',value:'tomorrow'}]);state.step='closing';save();}
+function handleNotYet(){addMsg('bot','No rush'+(hi()?' '+hi():'')+'. Can I answer anything while you are thinking it over?<br><br>Sometimes the thing holding people back is one question they have not gotten a straight answer to yet.');setQuick([{label:'Prices',value:'price'},{label:'Financing options',value:'finance'},{label:'Brands we carry',value:'brands'},{label:'Adjustable bases',value:'adjustable'},{label:'How does it work?',value:'hours'}]);}
+function flowBooking(){if(!state.day)return askDay();if(!state.time)return askTime();if(!state.name)return askName();if(!state.phone)return askPhone();return confirmBooking();}
+function askDay(){var today=new Date();var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];var tn=days[today.getDay()];var tom=days[(today.getDay()+1)%7];addMsg('bot',(hi()?'Perfect, '+hi()+'! ':'Perfect! ')+'What day works best?');setQuick([{label:'Today ('+tn+')',value:'today'},{label:'Tomorrow ('+tom+')',value:'tomorrow'},{label:'Saturday',value:'saturday'},{label:'Sunday',value:'sunday'}]);state.step='collect_day';save();}
+function askTime(){addMsg('bot','Great'+(state.day?' &#8212; <b>'+state.day+'</b>':'')+'. Pick a time (open 10am-7pm):');setQuick(SLOTS.map(function(s){return {label:s,value:'slot_'+s};}));state.step='collect_time';save();}
+function askName(){addMsg('bot','Almost done! What is your name?');state.step='collect_name';save();}
+function askPhone(){addMsg('bot','Thanks'+(hi()?' '+hi():'')+'. Best cell number for your text confirmation?');state.step='collect_phone';save();}
+function confirmBooking(){var s='Day: <b>'+(state.day||'?')+'</b><br>Time: <b>'+(state.time||'?')+'</b><br>Name: <b>'+esc(state.name||'?')+'</b><br>Phone: <b>'+esc(state.phone||'?')+'</b>';if(state.size)s+='<br>Size: <b>'+cap(state.size)+'</b>';if(state.pain)s+='<br>Focus: <b>'+esc(state.pain)+'</b>';addMsg('bot','Here is what I have:<br><br>'+s+'<br><br>Look right?');setQuick([{label:'Yes &#8212; book it!',value:'confirm_yes'},{label:'Fix something',value:'confirm_fix'}]);state.step='confirming';save();}
+async function sendBooking(){addMsg('bot','Locking it in...');var when=(state.day||'?')+' at '+(state.time||'?');try{await fetch('/api/book',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:state.name,phone:state.phone,when:when,size:state.size||'Not specified',pain:state.pain||'General shopping',source:'website-chat-v6',timestamp:new Date().toISOString()})});}catch(e){}addMsg('bot','<b>You are on the calendar!</b><br><br>Trey has been notified and will call to confirm your appointment for <b>'+esc(when)+'</b>.<br><br>You will also get a text confirmation at '+esc(state.phone||'your number')+'.<br><br><b>1809 Hwy 15 S, Sumter SC 29150</b><br>803-795-1194<br><br>Please bring:<br>&#8212; Photo ID<br>&#8212; Bank info if you want financing<br>&#8212; Anyone sleeping on the bed<br><br>See you soon! &#8212; MBA Sumter');state.step='booked';save();}
+function maybeAutoOpen(){try{if(SS.getItem(SS_AUTO))return;var isMobile=window.innerWidth<768;setTimeout(function(){if(!widget||widget.classList.contains('open'))return;SS.setItem(SS_AUTO,'1');openChat();},isMobile?12000:8000);}catch(e){}}
+function init(){if(!bindDom())return;maybeAutoOpen();if(load()&&state.messages.length){state.messages.forEach(function(m){var row=document.createElement('div');row.className='chat-msg chat-msg-'+m.role;var bub=document.createElement('div');bub.className='chat-bubble';bub.innerHTML=m.text;row.appendChild(bub);msgs.appendChild(row);});msgs.scrollTop=msgs.scrollHeight;}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
