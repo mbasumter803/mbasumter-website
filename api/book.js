@@ -1,17 +1,10 @@
 // /api/book.js - Vercel serverless function
 // Receives booking POSTs from site chat -> texts Trey via Twilio + fires Google Apps Script
 // (Calendar event + customer log spreadsheet).
-//
-// Required env vars in Vercel:
-//   TWILIO_ACCOUNT_SID
-//   TWILIO_AUTH_TOKEN
-//   TWILIO_FROM_NUMBER
-//   GAS_WEBHOOK_URL    - Google Apps Script Web App /exec URL
 
 const OWNER_PHONE = '+18039685749';
 
 export default async function handler(req, res) {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -21,7 +14,7 @@ export default async function handler(req, res) {
   try {
     const { name='?', phone='?', when='?', size='?', pain='?', source='website' } = req.body || {};
 
-    // --- 1. Text Trey via Twilio ---
+    // --- 1. Twilio SMS ---
     const sid   = process.env.TWILIO_ACCOUNT_SID;
     const token = process.env.TWILIO_AUTH_TOKEN;
     const from  = process.env.TWILIO_FROM_NUMBER;
@@ -44,27 +37,52 @@ export default async function handler(req, res) {
       twilioRef = j.sid || null;
     }
 
-    // --- 2. Fire Google Apps Script (calendar + sheet log) ---
+    // --- 2. Google Apps Script (Calendar + Sheet) ---
+    // Apps Script /exec redirects to googleusercontent.com. We must follow manually, 302.
     let calendared = false;
     let eventId = null;
     let scheduled = null;
+    let gasErr = null;
     const gas = process.env.GAS_WEBHOOK_URL;
     if (gas) {
       try {
-        const gr = await fetch(gas, {
+        const payload = JSON.stringify({ name, phone, when, size, pain, source });
+        // First call: usually returns 302 to googleusercontent
+        let gr = await fetch(gas, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, phone, when, size, pain, source }),
-          redirect: 'follow'
+          body: payload,
+          redirect: 'manual'
         });
-        const gj = await gr.json();
-        calendared = !!gj.ok;
-        eventId = gj.eventId || null;
-        scheduled = gj.scheduled || null;
-      } catch(e) { /* non-fatal */ }
+        // Follow redirects manually (up to 3 hops) while preserving method+body
+        let hops = 0;
+        while ((gr.status === 301 || gr.status === 302 || gr.status === 303 || gr.status === 307) && hops < 3) {
+          const loc = gr.headers.get('location');
+          if (!loc) break;
+          gr = await fetch(loc, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: payload,
+            redirect: 'manual'
+          });
+          hops++;
+        }
+        const txt = await gr.text();
+        try {
+          const gj = JSON.parse(txt);
+          calendared = !!gj.ok;
+          eventId = gj.eventId || null;
+          scheduled = gj.scheduled || null;
+          if (!gj.ok) gasErr = gj.error || 'gas not ok';
+        } catch(pe) {
+          gasErr = 'gas non-json: ' + txt.substring(0, 200);
+        }
+      } catch(e) { gasErr = String(e && e.message || e); }
+    } else {
+      gasErr = 'no GAS_WEBHOOK_URL';
     }
 
-    return res.status(200).json({ ok:true, ownerTexted, ref:twilioRef, calendared, eventId, scheduled });
+    return res.status(200).json({ ok:true, ownerTexted, ref:twilioRef, calendared, eventId, scheduled, gasErr });
   } catch (err) {
     return res.status(500).json({ ok:false, error:String(err && err.message || err) });
   }
