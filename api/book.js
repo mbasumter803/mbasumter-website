@@ -1,6 +1,3 @@
-// /api/book.js - Vercel serverless function
-// Twilio SMS + Google Apps Script (Calendar + Sheet log)
-
 const OWNER_PHONE = '+18039685749';
 
 export default async function handler(req, res) {
@@ -13,7 +10,6 @@ export default async function handler(req, res) {
   try {
     const { name='?', phone='?', when='?', size='?', pain='?', source='website' } = req.body || {};
 
-    // 1. Twilio SMS
     const sid   = process.env.TWILIO_ACCOUNT_SID;
     const token = process.env.TWILIO_AUTH_TOKEN;
     const from  = process.env.TWILIO_FROM_NUMBER;
@@ -36,37 +32,39 @@ export default async function handler(req, res) {
       twilioRef = j.sid || null;
     }
 
-    // 2. Google Apps Script - use text/plain to avoid CORS preflight-like behavior server-side
+    // GAS diagnostic
     let calendared = false;
     let eventId = null;
     let scheduled = null;
     let gasErr = null;
+    let gasStatus = null;
+    let gasUrl = null;
+    let gasBodyStart = null;
     const gas = process.env.GAS_WEBHOOK_URL;
     if (gas) {
       try {
         const payload = JSON.stringify({ name, phone, when, size, pain, source });
         const gr = await fetch(gas, {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: payload,
-          redirect: 'follow'
+          headers: { 'Content-Type': 'application/json' },
+          body: payload
         });
+        gasStatus = gr.status;
+        gasUrl = gr.url;
         const txt = await gr.text();
+        gasBodyStart = txt.substring(0, 100);
         try {
           const gj = JSON.parse(txt);
           calendared = !!gj.ok;
           eventId = gj.eventId || null;
           scheduled = gj.scheduled || null;
-          if (!gj.ok) gasErr = gj.error || 'gas not ok';
         } catch(pe) {
-          gasErr = 'gas non-json ('+gr.status+'): ' + txt.substring(0, 150);
+          gasErr = 'non-json';
         }
       } catch(e) { gasErr = String(e && e.message || e); }
-    } else {
-      gasErr = 'no GAS_WEBHOOK_URL';
     }
 
-    return res.status(200).json({ ok:true, ownerTexted, ref:twilioRef, calendared, eventId, scheduled, gasErr });
+    return res.status(200).json({ ok:true, ownerTexted, ref:twilioRef, calendared, eventId, scheduled, gasErr, gasStatus, gasUrl, gasBodyStart });
   } catch (err) {
     return res.status(500).json({ ok:false, error:String(err && err.message || err) });
   }
