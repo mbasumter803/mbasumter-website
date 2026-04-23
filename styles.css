@@ -197,3 +197,250 @@ body{padding-bottom:80px}
 .book-buttons{flex-direction:column}
 .book-buttons .btn{width:100%}
 }
+
+
+/* === MOBILE OPTIMIZATION PASS === */
+/* Phone-first polish so the site sells before the chat takes over */
+
+@media (max-width: 768px) {
+  /* Tighten hero on phones — oversized text was pushing CTA off screen */
+  .hero h1, .hero-title, h1 {
+    font-size: 40px !important;
+    line-height: 1.05 !important;
+    letter-spacing: -0.5px !important;
+  }
+  .hero p, .hero-sub { font-size: 16px !important; line-height: 1.4 !important; }
+  .hero { padding: 32px 16px 24px !important; min-height: auto !important; }
+
+  /* Thumb-friendly CTAs — min 48px tall, full width */
+  .btn, button.btn, a.btn {
+    min-height: 52px;
+    padding: 14px 22px !important;
+    font-size: 17px !important;
+    border-radius: 12px !important;
+  }
+  .hero .btn, .hero a.btn { width: 100%; display: flex; align-items: center; justify-content: center; }
+  .hero-cta, .hero-ctas { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+
+  /* Top bar — smaller so content shows through */
+  .topbar, .top-bar { font-size: 12px !important; padding: 6px 10px !important; }
+  .topbar strong, .top-bar strong { font-size: 12px !important; }
+
+  /* Nav — hide full menu on phones, let burger/brand lead */
+  nav .nav-links, header .nav-links { display: none !important; }
+  .nav, header.nav, .site-header { padding: 10px 14px !important; }
+
+  /* Deals grid — single column, larger price tags */
+  .deals-grid, .deal-grid { grid-template-columns: 1fr !important; gap: 14px !important; }
+  .deal-card, .deals-grid > * { padding: 16px !important; }
+  .deal-card h3, .deals-grid h3 { font-size: 20px !important; }
+  .deal-price, .price { font-size: 28px !important; }
+
+  /* Why-cards and finance-cards single column */
+  .why-grid, .finance-options { grid-template-columns: 1fr !important; gap: 12px !important; }
+  .why-card, .finance-card { padding: 16px !important; }
+
+  /* Section titles tighter */
+  .section-title, section h2 { font-size: 28px !important; line-height: 1.15 !important; }
+  section { padding: 40px 16px !important; }
+
+  /* Customer marquee — slower and cleaner */
+  .marquee, .customer-marquee { font-size: 14px !important; }
+
+  /* FAQ — bigger tap targets */
+  .faq-item summary { padding: 16px !important; font-size: 16px !important; min-height: 52px; display: flex; align-items: center; }
+
+  /* ===== CHAT WIDGET — MOBILE PEEK BAR ===== */
+  /* Instead of covering half the screen, slim peek bar at bottom */
+  .chat-widget {
+    bottom: 0 !important;
+    right: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+  }
+
+  /* When closed — show as a text-message-style peek bar */
+  .chat-widget:not(.open) .chat-toggle {
+    position: fixed;
+    left: 12px; right: 12px; bottom: 12px;
+    width: auto !important;
+    border-radius: 16px !important;
+    padding: 14px 18px !important;
+    justify-content: flex-start !important;
+    font-size: 15px !important;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.25) !important;
+    text-align: left;
+    line-height: 1.3;
+  }
+
+  /* When open — go true full-screen for focus */
+  .chat-widget.open .chat-box {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    z-index: 9999 !important;
+  }
+  .chat-header { padding: 14px 16px !important; font-size: 16px !important; }
+  .chat-messages { padding: 14px !important; font-size: 15px !important; }
+  .chat-input-row, .chat-footer { padding: 10px !important; }
+  .chat-input-row input, .chat-input, #chatInput {
+    font-size: 16px !important; /* 16px prevents iOS zoom */
+    padding: 14px 16px !important;
+    min-height: 48px;
+  }
+  .chat-send, #chatSend {
+    min-height: 48px; padding: 12px 20px !important; font-size: 15px !important;
+  }
+  /* Quick-reply chips become large pill buttons */
+  .chat-quick, .quick-replies { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 12px 10px; }
+  .chat-quick button, .quick-replies button, .quick-reply {
+    min-height: 44px; padding: 10px 16px !important; font-size: 14px !important;
+    border-radius: 22px !important; flex: 1 1 calc(50% - 4px);
+  }
+
+  /* Hide any desktop floating toggle background blob while bar is showing */
+  .chat-toggle .chat-toggle-desktop { display: none; }
+}
+
+/* Small phones — dial it down more */
+@media (max-width: 380px) {
+  .hero h1, .hero-title, h1 { font-size: 34px !important; }
+  .section-title, section h2 { font-size: 24px !important; }
+}
+
+/* iPhone safe-area bottom padding for peek bar */
+@supports (padding: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    .chat-widget:not(.open) .chat-toggle { bottom: calc(12px + env(safe-area-inset-bottom)); }
+  }
+}
+
+/* === MOBILE OPTIMIZATION PASS === */
+/* Phone-first polish so the site sells before the chat takes over */
+
+@media (max-width: 768px) {
+  /* Tighten hero on phones — oversized text was pushing CTA off screen */
+  .hero h1, .hero-title, h1 {
+    font-size: 40px !important;
+    line-height: 1.05 !important;
+    letter-spacing: -0.5px !important;
+  }
+  .hero p, .hero-sub { font-size: 16px !important; line-height: 1.4 !important; }
+  .hero { padding: 32px 16px 24px !important; min-height: auto !important; }
+
+  /* Thumb-friendly CTAs — min 48px tall, full width */
+  .btn, button.btn, a.btn {
+    min-height: 52px;
+    padding: 14px 22px !important;
+    font-size: 17px !important;
+    border-radius: 12px !important;
+  }
+  .hero .btn, .hero a.btn { width: 100%; display: flex; align-items: center; justify-content: center; }
+  .hero-cta, .hero-ctas { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+
+  /* Top bar — smaller so content shows through */
+  .topbar, .top-bar { font-size: 12px !important; padding: 6px 10px !important; }
+  .topbar strong, .top-bar strong { font-size: 12px !important; }
+
+  /* Nav — hide full menu on phones, let burger/brand lead */
+  nav .nav-links, header .nav-links { display: none !important; }
+  .nav, header.nav, .site-header { padding: 10px 14px !important; }
+
+  /* Deals grid — single column, larger price tags */
+  .deals-grid, .deal-grid { grid-template-columns: 1fr !important; gap: 14px !important; }
+  .deal-card, .deals-grid > * { padding: 16px !important; }
+  .deal-card h3, .deals-grid h3 { font-size: 20px !important; }
+  .deal-price, .price { font-size: 28px !important; }
+
+  /* Why-cards and finance-cards single column */
+  .why-grid, .finance-options { grid-template-columns: 1fr !important; gap: 12px !important; }
+  .why-card, .finance-card { padding: 16px !important; }
+
+  /* Section titles tighter */
+  .section-title, section h2 { font-size: 28px !important; line-height: 1.15 !important; }
+  section { padding: 40px 16px !important; }
+
+  /* Customer marquee — slower and cleaner */
+  .marquee, .customer-marquee { font-size: 14px !important; }
+
+  /* FAQ — bigger tap targets */
+  .faq-item summary { padding: 16px !important; font-size: 16px !important; min-height: 52px; display: flex; align-items: center; }
+
+  /* ===== CHAT WIDGET — MOBILE PEEK BAR ===== */
+  /* Instead of covering half the screen, slim peek bar at bottom */
+  .chat-widget {
+    bottom: 0 !important;
+    right: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+  }
+
+  /* When closed — show as a text-message-style peek bar */
+  .chat-widget:not(.open) .chat-toggle {
+    position: fixed;
+    left: 12px; right: 12px; bottom: 12px;
+    width: auto !important;
+    border-radius: 16px !important;
+    padding: 14px 18px !important;
+    justify-content: flex-start !important;
+    font-size: 15px !important;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.25) !important;
+    text-align: left;
+    line-height: 1.3;
+  }
+
+  /* When open — go true full-screen for focus */
+  .chat-widget.open .chat-box {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    z-index: 9999 !important;
+  }
+  .chat-header { padding: 14px 16px !important; font-size: 16px !important; }
+  .chat-messages { padding: 14px !important; font-size: 15px !important; }
+  .chat-input-row, .chat-footer { padding: 10px !important; }
+  .chat-input-row input, .chat-input, #chatInput {
+    font-size: 16px !important; /* 16px prevents iOS zoom */
+    padding: 14px 16px !important;
+    min-height: 48px;
+  }
+  .chat-send, #chatSend {
+    min-height: 48px; padding: 12px 20px !important; font-size: 15px !important;
+  }
+  /* Quick-reply chips become large pill buttons */
+  .chat-quick, .quick-replies { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 12px 10px; }
+  .chat-quick button, .quick-replies button, .quick-reply {
+    min-height: 44px; padding: 10px 16px !important; font-size: 14px !important;
+    border-radius: 22px !important; flex: 1 1 calc(50% - 4px);
+  }
+
+  /* Hide any desktop floating toggle background blob while bar is showing */
+  .chat-toggle .chat-toggle-desktop { display: none; }
+}
+
+/* Small phones — dial it down more */
+@media (max-width: 380px) {
+  .hero h1, .hero-title, h1 { font-size: 34px !important; }
+  .section-title, section h2 { font-size: 24px !important; }
+}
+
+/* iPhone safe-area bottom padding for peek bar */
+@supports (padding: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    .chat-widget:not(.open) .chat-toggle { bottom: calc(12px + env(safe-area-inset-bottom)); }
+  }
+}
