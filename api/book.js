@@ -13,6 +13,9 @@ export default async function handler(req, res) {
 
   try {
     const { name='?', phone='?', when='?', size='?', pain='?', source='website' } = req.body || {};
+    if (!name || name==='?' || String(name).trim().length < 2 || !phone || phone==='?' || String(phone).replace(/\D/g,'').length < 10) {
+      return res.status(400).json({ ok:false, error:'Please include your name and a valid phone number so we can confirm your appointment.' });
+    }
 
     // 1. Twilio SMS to owner
     const sid   = process.env.TWILIO_ACCOUNT_SID;
@@ -20,7 +23,7 @@ export default async function handler(req, res) {
     const from  = process.env.TWILIO_FROM_NUMBER;
     let ownerTexted = false, twilioRef = null;
     if (sid && token && from) {
-      const body = 'NEW MBA BOOKING\nName: ' + name + '\nPhone: ' + phone + '\nWhen: ' + when + '\nSize: ' + size + '\nPain: ' + pain + '\nSource: ' + source;
+      const body = '📲 NEW MBA BOOKING — CALL TO VERIFY\n\n' + (name && name!=='?' ? name : '(no name)') + '\n' + (phone && phone!=='?' ? phone : '(NO PHONE)') + '\n\nWants: ' + size + '\nWhen: ' + when + '\nPain: ' + pain + '\nSource: ' + source;
       const params = new URLSearchParams();
       params.append('To', OWNER_PHONE);
       params.append('From', from);
