@@ -1,6 +1,5 @@
 // /api/book.js - Vercel serverless function
-// Receives booking POSTs from site chat -> texts Trey via Twilio + fires Google Apps Script
-// (Calendar event + customer log spreadsheet).
+// Twilio SMS + Google Apps Script (Calendar + Sheet log)
 
 const OWNER_PHONE = '+18039685749';
 
@@ -14,7 +13,7 @@ export default async function handler(req, res) {
   try {
     const { name='?', phone='?', when='?', size='?', pain='?', source='website' } = req.body || {};
 
-    // --- 1. Twilio SMS ---
+    // 1. Twilio SMS
     const sid   = process.env.TWILIO_ACCOUNT_SID;
     const token = process.env.TWILIO_AUTH_TOKEN;
     const from  = process.env.TWILIO_FROM_NUMBER;
@@ -37,8 +36,7 @@ export default async function handler(req, res) {
       twilioRef = j.sid || null;
     }
 
-    // --- 2. Google Apps Script (Calendar + Sheet) ---
-    // Apps Script /exec redirects to googleusercontent.com. We must follow manually, 302.
+    // 2. Google Apps Script - use text/plain to avoid CORS preflight-like behavior server-side
     let calendared = false;
     let eventId = null;
     let scheduled = null;
@@ -47,26 +45,12 @@ export default async function handler(req, res) {
     if (gas) {
       try {
         const payload = JSON.stringify({ name, phone, when, size, pain, source });
-        // First call: usually returns 302 to googleusercontent
-        let gr = await fetch(gas, {
+        const gr = await fetch(gas, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: payload,
-          redirect: 'manual'
+          redirect: 'follow'
         });
-        // Follow redirects manually (up to 3 hops) while preserving method+body
-        let hops = 0;
-        while ((gr.status === 301 || gr.status === 302 || gr.status === 303 || gr.status === 307) && hops < 3) {
-          const loc = gr.headers.get('location');
-          if (!loc) break;
-          gr = await fetch(loc, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: payload,
-            redirect: 'manual'
-          });
-          hops++;
-        }
         const txt = await gr.text();
         try {
           const gj = JSON.parse(txt);
@@ -75,7 +59,7 @@ export default async function handler(req, res) {
           scheduled = gj.scheduled || null;
           if (!gj.ok) gasErr = gj.error || 'gas not ok';
         } catch(pe) {
-          gasErr = 'gas non-json: ' + txt.substring(0, 200);
+          gasErr = 'gas non-json ('+gr.status+'): ' + txt.substring(0, 150);
         }
       } catch(e) { gasErr = String(e && e.message || e); }
     } else {
