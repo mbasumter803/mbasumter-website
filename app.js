@@ -4,6 +4,38 @@
 var state={step:'greet',track:null,name:null,phone:null,size:null,pain:null,day:null,time:null,messages:[]};
 var SS=sessionStorage,SS_KEY='mba_v6',SS_AUTO='mba_v6_auto';
 var SLOTS=['10:00 AM','10:30 AM','11:00 AM','11:30 AM','12:00 PM','12:30 PM','1:00 PM','1:30 PM','2:00 PM','2:30 PM','3:00 PM','3:30 PM','4:00 PM','4:30 PM','5:00 PM','5:30 PM','6:00 PM','6:30 PM'];
+var blockedSlots=[];
+var slotsLoaded=false;
+function loadBlockedSlots(){
+  if(slotsLoaded)return;
+  slotsLoaded=true;
+  try{
+    fetch('https://script.google.com/macros/s/AKfycbwp7Z52-hIHS4ueGkSvukwqNglsc0zpin2X1QsH9v7WR_6WEir8uxW1WFFZt7Hxt2tgfw/exec?action=blocked')
+    .then(function(r){return r.json();})
+    .then(function(d){if(d&&d.blocked)blockedSlots=d.blocked;})
+    .catch(function(){});
+  }catch(e){}
+}
+function getAvailableSlots(day){
+  var now=new Date();
+  var cutoff=new Date(now.getTime()+60*60*1000);
+  var isToday=(day==='Today'||day===(['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][now.getDay()]));
+  return SLOTS.filter(function(slot){
+    var dayKey=day+' '+slot;
+    if(blockedSlots.indexOf(dayKey)>-1)return false;
+    if(isToday){
+      var parts=slot.match(/([0-9]+):([0-9]+) ([AP]M)/);
+      if(parts){
+        var h=parseInt(parts[1]);var m=parseInt(parts[2]);var ampm=parts[3];
+        if(ampm==='PM'&&h!==12)h+=12;
+        if(ampm==='AM'&&h===12)h=0;
+        var slotTime=new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0);
+        if(slotTime<cutoff)return false;
+      }
+    }
+    return true;
+  });
+}
 var widget,toggle,box,closeBtn,msgs,quick,input,sendBtn;
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
@@ -21,7 +53,7 @@ function bindDom(){
   document.querySelectorAll('a,button').forEach(function(el){if(['chatToggle','chatClose','chatReset','chatSend'].indexOf(el.id)>-1)return;var href=(el.getAttribute('href')||'').toLowerCase();var txt=(el.textContent||'').trim().toLowerCase();if(href==='#chat'||href==='#book'||href==='#appointment'||el.dataset.chat!==undefined||txt==='book now'||txt==='book appointment'||/^book (a |free |your |an )?appointment/.test(txt)){el.addEventListener('click',function(e){e.preventDefault();openChat();});}});
   return true;
 }
-function openChat(){widget.classList.add('open');if(state.messages.length===0)greet();setTimeout(function(){if(input)input.focus();},200);}
+function openChat(){loadBlockedSlots();widget.classList.add('open');if(state.messages.length===0)greet();setTimeout(function(){if(input)input.focus();},200);}
 function closeChat(){widget.classList.remove('open');}
 function resetAll(){SS.removeItem(SS_KEY);state={step:'greet',track:null,name:null,phone:null,size:null,pain:null,day:null,time:null,messages:[]};msgs.innerHTML='';quick.innerHTML='';greet();}
 function addMsg(role,html){var row=document.createElement('div');row.className='chat-msg chat-msg-'+role;var bub=document.createElement('div');bub.className='chat-bubble';bub.innerHTML=html;row.appendChild(bub);msgs.appendChild(row);msgs.scrollTop=msgs.scrollHeight;state.messages.push({role:role,text:html});save();}
@@ -88,7 +120,17 @@ function answerAccessory(){addMsg('bot','Yes &#8212; we carry pillows, mattress 
 function handleNotYet(){addMsg('bot','No rush'+(hi()?' '+hi():'')+'. Can I answer anything while you are thinking it over?<br><br>Sometimes the thing holding people back is one question they have not gotten a straight answer to yet.');setQuick([{label:'Prices',value:'price'},{label:'Financing options',value:'finance'},{label:'Brands we carry',value:'brands'},{label:'Adjustable bases',value:'adjustable'},{label:'How does it work?',value:'hours'}]);}
 function flowBooking(){if(!state.day)return askDay();if(!state.time)return askTime();if(!state.name)return askName();if(!state.phone)return askPhone();return confirmBooking();}
 function askDay(){var today=new Date();var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];var tn=days[today.getDay()];var tom=days[(today.getDay()+1)%7];addMsg('bot',(hi()?'Perfect, '+hi()+'! ':'Perfect! ')+'What day works best?');setQuick([{label:'Today ('+tn+')',value:'today'},{label:'Tomorrow ('+tom+')',value:'tomorrow'},{label:'Saturday',value:'saturday'},{label:'Sunday',value:'sunday'}]);state.step='collect_day';save();}
-function askTime(){addMsg('bot','Great'+(state.day?' &#8212; <b>'+state.day+'</b>':'')+'. Pick a time (open 10am-7pm):');setQuick(SLOTS.map(function(s){return {label:s,value:'slot_'+s};}));state.step='collect_time';save();}
+function askTime(){
+  var slots=getAvailableSlots(state.day||'');
+  if(slots.length===0){
+    addMsg('bot','It looks like we are fully booked for that day. Let me check another day for you.');
+    askDay();
+    return;
+  }
+  addMsg('bot','Great'+(state.day?' &#8212; <b>'+state.day+'</b>':'')+'. Pick a time (open 10am-7pm):');
+  setQuick(slots.map(function(s){return {label:s,value:'slot_'+s};}));
+  state.step='collect_time';save();
+}
 function askName(){addMsg('bot','Almost done! What is your name?');state.step='collect_name';save();}
 function askPhone(){addMsg('bot','Thanks'+(hi()?' '+hi():'')+'. Best cell number for your text confirmation?');state.step='collect_phone';save();}
 function confirmBooking(){var s='Day: <b>'+(state.day||'?')+'</b><br>Time: <b>'+(state.time||'?')+'</b><br>Name: <b>'+esc(state.name||'?')+'</b><br>Phone: <b>'+esc(state.phone||'?')+'</b>';if(state.size)s+='<br>Size: <b>'+cap(state.size)+'</b>';if(state.pain)s+='<br>Focus: <b>'+esc(state.pain)+'</b>';addMsg('bot','Here is what I have:<br><br>'+s+'<br><br>Look right?');setQuick([{label:'Yes &#8212; book it!',value:'confirm_yes'},{label:'Fix something',value:'confirm_fix'}]);state.step='confirming';save();}
