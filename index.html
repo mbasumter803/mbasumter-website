@@ -271,7 +271,7 @@
     if(dots[n]) dots[n].classList.add('active');
     i = n;
   }
-  setInterval(()=>go((i+1)%slides.length), 5000);
+  setInterval(()=>go((i+1)%slides.length), 8000);
   dots.forEach((d,idx)=>d.addEventListener('click',()=>go(idx)));
 })();
 </script>
