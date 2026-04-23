@@ -1,4 +1,8 @@
+// /api/book.js
+// Twilio SMS + Google Apps Script (Calendar + Sheet log)
+
 const OWNER_PHONE = '+18039685749';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwp7Z52-hIHS4ueGkSvukwqNglsc0zpin2X1QsH9v7WR_6WEir8uxW1WFFZt7Hxt2tgfw/exec';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,11 +14,11 @@ export default async function handler(req, res) {
   try {
     const { name='?', phone='?', when='?', size='?', pain='?', source='website' } = req.body || {};
 
+    // 1. Twilio SMS to owner
     const sid   = process.env.TWILIO_ACCOUNT_SID;
     const token = process.env.TWILIO_AUTH_TOKEN;
     const from  = process.env.TWILIO_FROM_NUMBER;
-    let ownerTexted = false;
-    let twilioRef = null;
+    let ownerTexted = false, twilioRef = null;
     if (sid && token && from) {
       const body = 'NEW MBA BOOKING\nName: ' + name + '\nPhone: ' + phone + '\nWhen: ' + when + '\nSize: ' + size + '\nPain: ' + pain + '\nSource: ' + source;
       const params = new URLSearchParams();
@@ -32,39 +36,24 @@ export default async function handler(req, res) {
       twilioRef = j.sid || null;
     }
 
-    // GAS diagnostic
-    let calendared = false;
-    let eventId = null;
-    let scheduled = null;
-    let gasErr = null;
-    let gasStatus = null;
-    let gasUrl = null;
-    let gasBodyStart = null;
-    const gas = process.env.GAS_WEBHOOK_URL;
-    if (gas) {
+    // 2. Google Apps Script (Calendar event + customer log)
+    let calendared = false, eventId = null, scheduled = null, gasErr = null;
+    try {
+      const gr = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, when, size, pain, source })
+      });
+      const txt = await gr.text();
       try {
-        const payload = JSON.stringify({ name, phone, when, size, pain, source });
-        const gr = await fetch(gas, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: payload
-        });
-        gasStatus = gr.status;
-        gasUrl = gr.url;
-        const txt = await gr.text();
-        gasBodyStart = txt.substring(0, 100);
-        try {
-          const gj = JSON.parse(txt);
-          calendared = !!gj.ok;
-          eventId = gj.eventId || null;
-          scheduled = gj.scheduled || null;
-        } catch(pe) {
-          gasErr = 'non-json';
-        }
-      } catch(e) { gasErr = String(e && e.message || e); }
-    }
+        const gj = JSON.parse(txt);
+        calendared = !!gj.ok;
+        eventId = gj.eventId || null;
+        scheduled = gj.scheduled || null;
+      } catch { gasErr = 'non-json status ' + gr.status; }
+    } catch(e) { gasErr = String(e && e.message || e); }
 
-    return res.status(200).json({ ok:true, ownerTexted, ref:twilioRef, calendared, eventId, scheduled, gasErr, gasStatus, gasUrl, gasBodyStart });
+    return res.status(200).json({ ok:true, ownerTexted, ref:twilioRef, calendared, eventId, scheduled, gasErr });
   } catch (err) {
     return res.status(500).json({ ok:false, error:String(err && err.message || err) });
   }
