@@ -475,3 +475,28 @@ body{padding-bottom:80px}
     font-size: 16px !important;
   }
 }
+
+
+    /* === Tier 1 #3: cap hero height === */
+.hero { min-height: 88vh; max-height: 720px; padding: 24px 16px 16px; }
+.hero-trust { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+.hero-trust > div { padding: 10px; font-size: 14px; }
+@media (min-width: 768px) { .hero-trust { grid-template-columns: repeat(4, 1fr); } }
+
+/* === Tier 1 #4: header-call always visible === */
+.header-call {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    font-size: 15px;
+    color: #d4a017;
+    margin-right: 8px;
+    white-space: nowrap;
+}
+.header-call:hover { color: #b8860b; }
+@media (max-width: 600px) {
+    .nav-links { display: none; }
+    .header-call { font-size: 14px; }
+    .nav-cta { padding: 10px 14px; font-size: 14px; }
+}
