@@ -501,145 +501,70 @@ body{padding-bottom:80px}
     .nav-cta { padding: 10px 14px; font-size: 14px; }
 }
 
-
-/* === v6.4 — Kill chat popup, polish booking section, beef up mobile sticky === */
-
-/* Kill the floating chat widget entirely — no more clunky popup */
-#chatWidget, .chat-widget { display: none !important; }
-
-/* Polish the inline #book section — makes it feel intentional, not afterthought */
-.book-cta {
-    background: linear-gradient(135deg, #0a0e27 0%, #1a1f4a 100%);
-    color: #fff;
-    padding: 80px 20px;
-    text-align: center;
-    border-top: 4px solid #d4a017;
+/* === v7 — Three-Path Inline Booking Card === */
+.nav-cta{display:inline-block !important;}
+.hero-ctas .btn-ghost{display:inline-block !important;}
+.book-cta .btn-gold{display:inline-block !important;}
+.book-cta{background:linear-gradient(135deg,#0a0e27 0%,#1a1f4a 100%);color:#fff;padding:80px 0;border-top:4px solid #d4a017;text-align:center;}
+.book-cta .book-eyebrow{display:inline-block;color:#81e08a;font-weight:700;font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
+.book-cta h2{color:#fff;font-size:clamp(34px,4vw,52px);margin-bottom:14px;}
+.book-lead{color:#d5d9e9;font-size:17px;margin-bottom:36px;max-width:540px;margin-left:auto;margin-right:auto;}
+.book-card{max-width:720px;margin:0 auto;background:#fff;color:#0a0e27;border-radius:18px;padding:28px;text-align:left;box-shadow:0 24px 60px rgba(0,0,0,0.35);}
+.book-path{padding:22px 0;border-bottom:1px solid #eaecf5;}
+.book-path:last-child{border-bottom:none;padding-bottom:4px;}
+.book-path:first-child{padding-top:4px;}
+.path-header{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px;}
+.path-num{flex:0 0 32px;height:32px;background:#d4a017;color:#0a0e27;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;font-family:'Playfair Display',serif;}
+.path-header strong{display:block;font-size:18px;color:#0a0e27;margin-bottom:2px;}
+.path-header span{display:block;font-size:14px;color:#666;line-height:1.4;}
+.qb-step{margin-bottom:14px;}
+.qb-step label{display:block;font-size:13px;font-weight:700;color:#555;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;}
+.qb-day-label{text-transform:none;letter-spacing:0;color:#d4a017;font-weight:700;}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{background:#fff;border:2px solid #d4a017;color:#0a0e27;padding:12px 18px;border-radius:999px;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;min-height:44px;font-family:inherit;}
+.chip:hover{background:#fff8e5;}
+.chip.active{background:#d4a017;color:#fff;}
+#qbPhone,#qbName{width:100%;padding:14px 16px;border:2px solid #eaecf5;border-radius:12px;font-size:16px;margin-bottom:10px;font-family:inherit;-webkit-appearance:none;}
+#qbPhone:focus,#qbName:focus{outline:none;border-color:#d4a017;}
+#qbConfirm{width:100%;margin-top:6px;cursor:pointer;}
+.qb-tiny{text-align:center;font-size:12px;color:#888;margin-top:10px;margin-bottom:0;}
+.qb-done{background:linear-gradient(135deg,#1a8a3a,#0f6b2a);color:#fff;padding:18px 20px;border-radius:12px;font-size:16px;line-height:1.5;}
+.qb-done strong{font-size:18px;}
+.btn-ghost-dark{display:inline-block;width:100%;background:transparent;border:2px solid #0a0e27;color:#0a0e27;padding:14px 20px;border-radius:12px;font-weight:700;font-size:16px;cursor:pointer;transition:all 0.15s;text-align:center;font-family:inherit;}
+.btn-ghost-dark:hover{background:#0a0e27;color:#fff;}
+.chat-inline{margin-top:14px;}
+.chat-inline .chat-box-inline{display:flex;flex-direction:column;height:480px;background:#fafbff;border:1px solid #eaecf5;border-radius:14px;overflow:hidden;}
+.chat-inline .chat-header{background:linear-gradient(135deg,#0a0e27,#1a1f4a);color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;}
+.chat-inline .chat-header strong{display:block;font-size:15px;}
+.chat-inline .chat-header span{font-size:12px;color:#b5b9c9;}
+.chat-inline #chatClose{background:transparent;color:#fff;border:none;font-size:18px;cursor:pointer;opacity:0.7;}
+.chat-inline #chatMessages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.chat-inline .chat-msg-bot .chat-bubble{background:#fff;color:#0a0e27;border:1px solid #eaecf5;padding:10px 14px;border-radius:14px;display:inline-block;}
+.chat-inline .chat-msg-user .chat-bubble{background:linear-gradient(135deg,#0a0e27,#1a1f4a);color:#fff;padding:10px 14px;border-radius:14px;display:inline-block;}
+.chat-inline .chat-msg-user{align-self:flex-end;}
+.chat-inline .chat-msg-bot{align-self:flex-start;max-width:85%;}
+.chat-inline #chatQuickReplies{display:flex;flex-wrap:wrap;gap:6px;padding:0 14px 10px;}
+.chat-inline .chat-quick-btn{background:#fff;border:1px solid #d4a017;color:#0a0e27;padding:8px 14px;border-radius:999px;font-size:13px;cursor:pointer;font-weight:600;font-family:inherit;min-height:40px;}
+.chat-inline .chat-quick-btn:hover{background:#d4a017;color:#fff;}
+.chat-inline .chat-input-row{display:flex;border-top:1px solid #eaecf5;padding:10px;gap:8px;background:#fff;}
+.chat-inline #chatInput{flex:1;border:1px solid #eaecf5;border-radius:10px;padding:10px 14px;font-size:16px;font-family:inherit;outline:none;}
+.chat-inline #chatInput:focus{border-color:#d4a017;}
+.chat-inline #chatSend{background:#0a0e27;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-weight:700;cursor:pointer;font-size:14px;font-family:inherit;}
+.btn-call-big{display:block;width:100%;background:linear-gradient(135deg,#1a8a3a,#0f6b2a);color:#fff;padding:18px 20px;border-radius:12px;font-weight:800;font-size:18px;text-align:center;letter-spacing:0.3px;box-shadow:0 6px 18px rgba(26,138,58,0.35);transition:transform 0.15s;}
+.btn-call-big:hover{transform:translateY(-2px);}
+.book-address{margin-top:28px;font-size:14px;color:#b5b9c9;}
+@media(max-width:768px){
+.book-card{padding:18px;border-radius:14px;}
+.book-path{padding:18px 0;}
+.path-header strong{font-size:16px;}
+.path-header span{font-size:13px;}
+.chip{padding:11px 16px;font-size:14px;flex:1 1 calc(33% - 8px);text-align:center;}
+.chat-inline .chat-box-inline{height:420px;}
+.btn-call-big{font-size:17px;padding:16px 18px;}
+.mobile-sticky{display:grid !important;grid-template-columns:1fr 1fr;gap:8px;position:fixed;bottom:0;left:0;right:0;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,0.98);backdrop-filter:blur(12px);box-shadow:0 -4px 20px rgba(0,0,0,0.12);z-index:1000;border-top:1px solid rgba(0,0,0,0.06);}
+.mobile-sticky a{display:flex !important;align-items:center;justify-content:center;}
+.ms-btn{height:56px;border-radius:12px;font-weight:700;font-size:16px;}
+.ms-call{background:linear-gradient(135deg,#1a8a3a,#0f6b2a);color:#fff;box-shadow:0 4px 12px rgba(26,138,58,0.35);}
+.ms-book{background:linear-gradient(135deg,#d4a017,#b8860b);color:#fff;box-shadow:0 4px 12px rgba(212,160,23,0.35);}
+body{padding-bottom:80px;}
 }
-.book-cta .book-eyebrow {
-    display: inline-block;
-    color: #d4a017;
-    font-weight: 700;
-    font-size: 14px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-bottom: 18px;
-    padding: 6px 16px;
-    border: 1px solid rgba(212, 160, 23, .4);
-    border-radius: 999px;
-    background: rgba(212, 160, 23, .08);
-}
-.book-cta h2 {
-    font-size: clamp(32px, 5vw, 52px);
-    color: #fff;
-    margin-bottom: 16px;
-    line-height: 1.1;
-}
-.book-cta p {
-    font-size: 17px;
-    color: rgba(255, 255, 255, .85);
-    max-width: 600px;
-    margin: 0 auto 32px;
-}
-.book-buttons {
-    display: flex;
-    gap: 14px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: 24px;
-}
-.book-buttons .btn {
-    min-width: 240px;
-}
-.book-address {
-    margin-top: 24px;
-    font-size: 14px;
-    color: rgba(255, 255, 255, .6);
-}
-
-/* Beef up mobile sticky bottom bar — bigger thumb targets, drop shadow, gold/outline split */
-.mobile-sticky {
-    display: none;
-}
-@media (max-width: 768px) {
-    .mobile-sticky {
-          display: grid !important;
-          grid-template-columns: 1fr 1fr;
-          gap: 8px;
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
-          background: rgba(255, 255, 255, .98);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          box-shadow: 0 -4px 20px rgba(0, 0, 0, .12);
-          z-index: 1000;
-          border-top: 1px solid rgba(0, 0, 0, .06);
-    }
-    .ms-btn {
-          height: 56px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border-radius: 12px;
-          font-weight: 700;
-          font-size: 16px;
-          text-decoration: none;
-          transition: transform .15s ease;
-    }
-    .ms-btn:active { transform: scale(.97); }
-    .ms-call {
-          background: linear-gradient(135deg, #d4a017, #b8860b);
-          color: #fff;
-          box-shadow: 0 4px 12px rgba(212, 160, 23, .35);
-    }
-    .ms-book {
-          background: #fff;
-          color: #0a0e27;
-          border: 2px solid #0a0e27;
-    }
-    /* Pad bottom of body so sticky bar doesn't cover footer content */
-  body { padding-bottom: 80px; }
-    /* Tighten hero CTAs on mobile — full width stacked */
-  .hero .btn-lg {
-        display: block;
-        width: 100%;
-        margin-bottom: 10px;
-        padding: 16px 20px;
-        font-size: 16px;
-  }
-    /* Hide nav links on mobile (cluttered horizontal scroll) */
-  .nav-links { display: none !important; }
-    /* Smaller hero headline on mobile */
-  .hero h1 { font-size: clamp(38px, 9vw, 56px); }
-    /* Book section padding tighter on mobile */
-  .book-cta { padding: 56px 16px; }
-    .book-buttons { flex-direction: column; }
-    .book-buttons .btn { width: 100%; min-width: 0; }
-}
-
-
-/* === v6.5: Hide broken Book buttons (chat is disabled) — Call is single CTA === */
-/* The hero Book button (secondary outline, opens chat) — hide so Call is the only hero CTA */
-.hero-ctas .btn-ghost { display: none !important; }
-.hero-ctas .btn-gold { width: 100%; max-width: 360px; }
-
-/* The header Book button (opens chat) — hide so the gold phone link is the only header CTA */
-.nav-cta { display: none !important; }
-
-/* The #book section "Book Online (60 sec)" button (opens chat) — hide */
-.book-cta .btn-gold { display: none !important; }
-.book-cta .btn-ghost,
-.book-cta .btn-dark { display: inline-block; width: auto; }
-
-/* Mobile sticky Book button (opens chat) — hide so Call fills the bar */
-.mobile-sticky a:not([href^="tel:"]) { display: none !important; }
-.mobile-sticky a[href^="tel:"] { width: 100%; flex: 1; justify-content: center; }
-
-/* Hide the chat-toggle floating bubble entirely (already hidden visually but ensure) */
-#chatToggle, .chat-toggle, #chatWidget { display: none !important; }
-
-/* Make the #book section feel like a real anchor — add a clear CALL CTA emphasis */
-.book-cta .btn { font-size: 18px; padding: 18px 32px; }
-.book-cta { text-align: center; }
