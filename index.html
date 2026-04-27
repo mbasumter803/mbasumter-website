@@ -136,7 +136,7 @@
 <div class="showroom-info">
 <div><strong>📍 Location</strong><br><a href="https://maps.google.com/?q=1809+Hwy+15+South+Sumter+SC+29150" target="_blank" rel="noopener">1809 Hwy 15 South<br>Sumter, SC 29150</a><br><span class="map-link">Get Directions →</span></div>
 <div><strong>🕐 Hours</strong><br>Open 7 Days a Week<br>10:00 AM – 7:00 PM</div>
-<div><strong>📞 Direct Line</strong><br><a href="tel:8037951194">803-795-1194</a><br>Owner Trey answers</div>
+<div><strong>📞 Direct Line</strong><br><a href="tel:8037951194">803-795-1194</a><br>Owner Tre answers</div>
 </div>
 </div>
 </section>
@@ -172,10 +172,10 @@
 <div class="why-grid">
 <div class="why-card"><div class="why-icon">💰</div><h3>Warehouse Prices</h3><p>50-80% off retail. Same mattresses. Half the price. We buy direct so you save direct.</p></div>
 <div class="why-card"><div class="why-icon">📦</div><h3>Take It Home Today</h3><p>Every mattress ships in a box. Fits in your car. No delivery. No waiting.</p></div>
-<div class="why-card"><div class="why-icon">🤝</div><h3>Private Appointments</h3><p>Showroom to yourself. Owner Trey personally helps you find the right fit.</p></div>
+<div class="why-card"><div class="why-icon">🤝</div><h3>Private Appointments</h3><p>Showroom to yourself. Owner Tre personally helps you find the right fit.</p></div>
 <div class="why-card"><div class="why-icon">✅</div><h3>No Credit? No Problem</h3><p>Snap Finance. No credit needed. Approved in minutes. Walk out with a new mattress today.</p></div>
 <div class="why-card"><div class="why-icon">🛏️</div><h3>Premium Brands</h3><p>Malouf, Serta, Sealy, Simmons, Southerland, Allswell — all at warehouse pricing.</p></div>
-<div class="why-card"><div class="why-icon">⭐</div><h3>Sumter Locally Owned</h3><p>Your neighbor, not a chain. Trey has been outfitting Sumter bedrooms for years.</p></div>
+<div class="why-card"><div class="why-icon">⭐</div><h3>Sumter Locally Owned</h3><p>Your neighbor, not a chain. Tre has been outfitting Sumter bedrooms for years.</p></div>
 </div>
 </div>
 </section>
@@ -213,13 +213,66 @@
 
 <section id="book" class="book-cta">
 <div class="container book-inner">
-<div class="book-eyebrow">● Open Now · Trey is ready to help</div>
+<div class="book-eyebrow">● <span id="liveStatus">Open Now</span> · Tre is ready to help</div>
 <h2>Book Your Private Appointment</h2>
-<p>Takes 60 seconds. Same-day appointments usually available. Owner Trey will personally greet you.</p>
-<div class="book-buttons">
-<button id="openChat" class="btn btn-gold btn-xl">💬 Book Online (60 sec)</button>
-<a href="tel:8037951194" class="btn btn-ghost btn-xl">📞 Call 803-795-1194</a>
+<p class="book-lead">Three easy ways to reach us — pick whichever feels right.</p>
+
+<div class="book-card">
+
+<div class="book-path book-quick">
+<div class="path-header"><span class="path-num">1</span><div><strong>Book in 30 seconds</strong><span>Pick a day, pick a time, that's it.</span></div></div>
+
+<div class="qb-step" id="qbDayStep">
+<label>What day works?</label>
+<div class="chip-row" id="qbDayChips"></div>
 </div>
+
+<div class="qb-step" id="qbTimeStep" style="display:none">
+<label>Pick a time <span class="qb-day-label" id="qbDayLabel"></span></label>
+<div class="chip-row" id="qbTimeChips"></div>
+</div>
+
+<div class="qb-step" id="qbContactStep" style="display:none">
+<label>Your phone number (for text confirmation)</label>
+<input id="qbPhone" type="tel" inputmode="numeric" placeholder="803-555-0123" autocomplete="tel">
+<input id="qbName" type="text" placeholder="First name (optional)" autocomplete="given-name">
+<button id="qbConfirm" class="btn btn-gold btn-xl">Lock In My Appointment →</button>
+<p class="qb-tiny">★ 4.9 · 200+ Sumter families · No pressure · Free</p>
+</div>
+
+<div class="qb-step" id="qbDoneStep" style="display:none">
+<div class="qb-done">✓ <strong>You're booked!</strong><br><span id="qbDoneMsg"></span></div>
+</div>
+</div>
+
+<div class="book-path book-chat-path">
+<div class="path-header"><span class="path-num">2</span><div><strong>Have questions first?</strong><span>Chat with our Sleep Specialist — prices, financing, brands, pain.</span></div></div>
+<button id="openInlineChat" class="btn btn-ghost-dark">💬 Chat with Sleep Specialist</button>
+
+<div id="chatWidget" class="chat-inline" style="display:none">
+<button id="chatToggle" style="display:none">💬<span>Book Now</span></button>
+<div id="chatBox" class="chat-box-inline">
+<div class="chat-header">
+<div><strong>Sleep Specialist</strong><span>Mattress by Appointment · Sumter</span></div>
+<button id="chatClose" aria-label="Close chat">✕</button>
+</div>
+<div id="chatMessages" class="chat-messages"></div>
+<div id="chatQuickReplies" class="chat-quick"></div>
+<div class="chat-input-row">
+<input id="chatInput" type="text" placeholder="Type your message...">
+<button id="chatSend">Send</button>
+</div>
+</div>
+</div>
+</div>
+
+<div class="book-path book-call-path">
+<div class="path-header"><span class="path-num">3</span><div><strong>Prefer to talk?</strong><span>Tre answers the phone himself, 7 days 10am-7pm.</span></div></div>
+<a href="tel:8037951194" class="btn btn-call-big">📞 Call Tre · 803-795-1194</a>
+</div>
+
+</div>
+
 <p class="book-address">1809 Hwy 15 South · Sumter, SC 29150 · Open 7 Days 10am-7pm</p>
 </div>
 </section>
@@ -240,22 +293,6 @@
 <div class="mobile-sticky">
 <a href="tel:8037951194" class="ms-btn ms-call">📞 Call</a>
 <a href="#book" class="ms-btn ms-book">Book Appointment</a>
-</div>
-
-<div id="chatWidget" class="chat-widget">
-<button id="chatToggle" class="chat-toggle">💬<span>Book Now</span></button>
-<div id="chatBox" class="chat-box">
-<div class="chat-header">
-<div><strong>Sleep Specialist</strong><span>Mattress by Appointment · Sumter</span></div>
-<button id="chatClose">✕</button>
-</div>
-<div id="chatMessages" class="chat-messages"></div>
-<div id="chatQuickReplies" class="chat-quick"></div>
-<div class="chat-input-row">
-<input id="chatInput" type="text" placeholder="Type your message...">
-<button id="chatSend">Send</button>
-</div>
-</div>
 </div>
 
 <script src="app.js?v=6"></script>
