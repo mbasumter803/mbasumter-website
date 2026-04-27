@@ -312,5 +312,5 @@
   dots.forEach((d,idx)=>d.addEventListener('click',()=>go(idx)));
 })();
 </script>
-</body>
+<script>document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.deal-card').forEach(function(c){var sz=(c.querySelector('.deal-size')||{}).textContent;if(!sz)return;sz=sz.trim();c.style.cursor='pointer';c.setAttribute('role','button');c.setAttribute('tabindex','0');c.setAttribute('aria-label','Book a '+sz+' mattress');var cta=document.createElement('div');cta.className='deal-cta';cta.innerHTML='<span class="deal-book">Book This Size →</span><a class="deal-call" href="tel:8037951194" onclick="event.stopPropagation()">📞 Call</a>';c.appendChild(cta);function go(){try{window.__qbPreSize=sz;var t=document.getElementById('book');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}}c.addEventListener('click',go);c.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});});});</script>
 </html>
