@@ -500,3 +500,121 @@ body{padding-bottom:80px}
     .header-call { font-size: 14px; }
     .nav-cta { padding: 10px 14px; font-size: 14px; }
 }
+
+
+/* === v6.4 — Kill chat popup, polish booking section, beef up mobile sticky === */
+
+/* Kill the floating chat widget entirely — no more clunky popup */
+#chatWidget, .chat-widget { display: none !important; }
+
+/* Polish the inline #book section — makes it feel intentional, not afterthought */
+.book-cta {
+    background: linear-gradient(135deg, #0a0e27 0%, #1a1f4a 100%);
+    color: #fff;
+    padding: 80px 20px;
+    text-align: center;
+    border-top: 4px solid #d4a017;
+}
+.book-cta .book-eyebrow {
+    display: inline-block;
+    color: #d4a017;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    padding: 6px 16px;
+    border: 1px solid rgba(212, 160, 23, .4);
+    border-radius: 999px;
+    background: rgba(212, 160, 23, .08);
+}
+.book-cta h2 {
+    font-size: clamp(32px, 5vw, 52px);
+    color: #fff;
+    margin-bottom: 16px;
+    line-height: 1.1;
+}
+.book-cta p {
+    font-size: 17px;
+    color: rgba(255, 255, 255, .85);
+    max-width: 600px;
+    margin: 0 auto 32px;
+}
+.book-buttons {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+.book-buttons .btn {
+    min-width: 240px;
+}
+.book-address {
+    margin-top: 24px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, .6);
+}
+
+/* Beef up mobile sticky bottom bar — bigger thumb targets, drop shadow, gold/outline split */
+.mobile-sticky {
+    display: none;
+}
+@media (max-width: 768px) {
+    .mobile-sticky {
+          display: grid !important;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+          background: rgba(255, 255, 255, .98);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          box-shadow: 0 -4px 20px rgba(0, 0, 0, .12);
+          z-index: 1000;
+          border-top: 1px solid rgba(0, 0, 0, .06);
+    }
+    .ms-btn {
+          height: 56px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 12px;
+          font-weight: 700;
+          font-size: 16px;
+          text-decoration: none;
+          transition: transform .15s ease;
+    }
+    .ms-btn:active { transform: scale(.97); }
+    .ms-call {
+          background: linear-gradient(135deg, #d4a017, #b8860b);
+          color: #fff;
+          box-shadow: 0 4px 12px rgba(212, 160, 23, .35);
+    }
+    .ms-book {
+          background: #fff;
+          color: #0a0e27;
+          border: 2px solid #0a0e27;
+    }
+    /* Pad bottom of body so sticky bar doesn't cover footer content */
+  body { padding-bottom: 80px; }
+    /* Tighten hero CTAs on mobile — full width stacked */
+  .hero .btn-lg {
+        display: block;
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 16px 20px;
+        font-size: 16px;
+  }
+    /* Hide nav links on mobile (cluttered horizontal scroll) */
+  .nav-links { display: none !important; }
+    /* Smaller hero headline on mobile */
+  .hero h1 { font-size: clamp(38px, 9vw, 56px); }
+    /* Book section padding tighter on mobile */
+  .book-cta { padding: 56px 16px; }
+    .book-buttons { flex-direction: column; }
+    .book-buttons .btn { width: 100%; min-width: 0; }
+}
