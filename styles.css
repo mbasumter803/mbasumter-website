@@ -618,3 +618,28 @@ body{padding-bottom:80px}
     .book-buttons { flex-direction: column; }
     .book-buttons .btn { width: 100%; min-width: 0; }
 }
+
+
+/* === v6.5: Hide broken Book buttons (chat is disabled) — Call is single CTA === */
+/* The hero Book button (secondary outline, opens chat) — hide so Call is the only hero CTA */
+.hero-ctas .btn-ghost { display: none !important; }
+.hero-ctas .btn-gold { width: 100%; max-width: 360px; }
+
+/* The header Book button (opens chat) — hide so the gold phone link is the only header CTA */
+.nav-cta { display: none !important; }
+
+/* The #book section "Book Online (60 sec)" button (opens chat) — hide */
+.book-cta .btn-gold { display: none !important; }
+.book-cta .btn-ghost,
+.book-cta .btn-dark { display: inline-block; width: auto; }
+
+/* Mobile sticky Book button (opens chat) — hide so Call fills the bar */
+.mobile-sticky a:not([href^="tel:"]) { display: none !important; }
+.mobile-sticky a[href^="tel:"] { width: 100%; flex: 1; justify-content: center; }
+
+/* Hide the chat-toggle floating bubble entirely (already hidden visually but ensure) */
+#chatToggle, .chat-toggle, #chatWidget { display: none !important; }
+
+/* Make the #book section feel like a real anchor — add a clear CALL CTA emphasis */
+.book-cta .btn { font-size: 18px; padding: 18px 32px; }
+.book-cta { text-align: center; }
