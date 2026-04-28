@@ -314,3 +314,11 @@
 </script>
 <script>document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.deal-card').forEach(function(c){var sz=(c.querySelector('.deal-size')||{}).textContent;if(!sz)return;sz=sz.trim();c.style.cursor='pointer';c.setAttribute('role','button');c.setAttribute('tabindex','0');c.setAttribute('aria-label','Book a '+sz+' mattress');var cta=document.createElement('div');cta.className='deal-cta';cta.innerHTML='<span class="deal-book">Book This Size →</span><a class="deal-call" href="tel:8037951194" onclick="event.stopPropagation()">📞 Call</a>';c.appendChild(cta);function go(){try{window.__qbPreSize=sz;var t=document.getElementById('book');if(t)t.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){}}c.addEventListener('click',go);c.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});});});</script>
 </html>
+
+<style>
+  /* mobile booking buttons fix v4 */
+  .book-card .chip,.book-card .btn-ghost-dark,.book-card .btn-call-big,.book-card #qbConfirm,.btn,.chip{-webkit-user-select:auto !important;user-select:auto !important;-webkit-touch-callout:default !important;touch-action:manipulation !important;pointer-events:auto !important;cursor:pointer !important;}
+  .book-card .chip:active,.book-card .btn-ghost-dark:active,.book-card .btn-call-big:active,.book-card #qbConfirm:active,.btn:active,.chip:active{transform:none !important;}
+  .book-cta{position:relative;z-index:5;}.book-card{position:relative;z-index:6;}
+  @media (max-width:768px){body{padding-bottom:120px !important;}.book-card .chip-row{display:flex !important;flex-direction:column !important;gap:10px !important;}.book-card .chip{width:100% !important;flex:1 1 100% !important;min-height:54px !important;font-size:16px !important;padding:14px 18px !important;}.book-card .btn-ghost-dark,.book-card .btn-call-big,.book-card #qbConfirm{width:100% !important;min-height:56px !important;font-size:17px !important;}}
+  </style>
