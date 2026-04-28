@@ -1,4 +1,4 @@
-—// MBA Sumter Sleep Specialist v6 — Pain-first, 30-min slots, smart two-track
+// MBA Sumter Sleep Specialist v6 — Pain-first, 30-min slots, smart two-track
 (function(){
 'use strict';
 var state={step:'greet',track:null,name:null,phone:null,size:null,pain:null,day:null,time:null,messages:[]};
