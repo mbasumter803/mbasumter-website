@@ -615,3 +615,18 @@ html{-webkit-text-size-adjust:100%;}
     .book-card .path-header strong{font-size:16px;}
     .book-card .path-header span{font-size:13px;}
 }
+/* === MOBILE TAP FIX v3 - hard override v1 user-select issue === */
+.btn,.chip,.deal-card,.ms-btn,.btn-call-big,.btn-ghost-dark,.chat-quick-btn,.chat-toggle,.faq-item summary,.hero-dots .dot,.nav-cta,.header-call,#qbConfirm,#chatSend,#openInlineChat,.book-card .chip,.book-card button,.book-card a{-webkit-user-select:auto !important;user-select:auto !important;-webkit-touch-callout:default !important;-webkit-tap-highlight-color:rgba(212,160,23,.3) !important;touch-action:manipulation !important;pointer-events:auto !important;cursor:pointer !important;}
+.book-card .chip:active,.book-card .btn-ghost-dark:active,.book-card .btn-call-big:active,.book-card #qbConfirm:active,.btn:active,.chip:active{transform:none !important;}
+.book-cta{position:relative;z-index:5;}
+.book-card{position:relative;z-index:6;}
+@media (max-width:768px){
+  body{padding-bottom:120px !important;}
+  .book-cta{padding:50px 0 60px !important;}
+  .book-card{padding:18px !important;}
+  .book-card .chip-row{display:flex !important;flex-direction:column !important;gap:10px !important;}
+  .book-card .chip{width:100% !important;flex:1 1 100% !important;min-height:54px !important;font-size:16px !important;padding:14px 18px !important;display:flex !important;align-items:center !important;justify-content:center !important;text-align:center !important;}
+  .book-card .btn-ghost-dark,.book-card .btn-call-big,.book-card #qbConfirm{width:100% !important;min-height:56px !important;font-size:17px !important;padding:16px 18px !important;display:flex !important;align-items:center !important;justify-content:center !important;}
+  .book-card #qbPhone,.book-card #qbName{width:100% !important;min-height:54px !important;font-size:16px !important;padding:14px 16px !important;}
+  .chat-widget:not(.open){bottom:calc(80px + env(safe-area-inset-bottom)) !important;}
+}
