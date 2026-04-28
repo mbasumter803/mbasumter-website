@@ -575,3 +575,43 @@ body{padding-bottom:80px;}
 .btn:active,.chip:active,.deal-card:active,.ms-btn:active,.btn-call-big:active,.btn-ghost-dark:active,.chat-quick-btn:active,#qbConfirm:active,#chatSend:active{transform:scale(0.98);transition:transform 0.05s ease;}
 html{-webkit-text-size-adjust:100%;}
                                                                                                                                                                 
+
+
+/* === BOOKING BUTTONS POLISH v8 — sharper CTA hierarchy === */
+.book-cta{padding:90px 0 70px;}
+.book-card{box-shadow:0 28px 70px rgba(0,0,0,0.4);border:1px solid rgba(212,160,23,0.15);}
+
+/* Day/time chips: clearer unselected vs selected, larger tap target, bolder type */
+.book-card .chip{background:#fff;border:2px solid #d4a017;color:#0a0e27;font-weight:700;font-size:15px;padding:13px 20px;border-radius:999px;min-height:48px;letter-spacing:0.2px;box-shadow:0 1px 0 rgba(10,14,39,0.04);transition:background .15s ease, color .15s ease, transform .08s ease, box-shadow .15s ease;}
+.book-card .chip:hover{background:#fff5d6;border-color:#b8860b;}
+.book-card .chip.active,
+.book-card .chip[aria-pressed="true"]{background:linear-gradient(135deg,#d4a017,#b8860b);border-color:#b8860b;color:#fff;box-shadow:0 6px 16px rgba(212,160,23,0.45);}
+.book-card .chip:focus-visible{outline:3px solid #ffd760;outline-offset:2px;}
+
+/* Secondary 'Chat with Sleep Specialist' button — make it readable and obviously clickable */
+.book-card .btn-ghost-dark{background:#fff;border:2px solid #0a0e27;color:#0a0e27;font-weight:800;font-size:16px;padding:15px 22px;border-radius:12px;letter-spacing:0.2px;box-shadow:0 4px 14px rgba(10,14,39,0.08);transition:background .18s ease, color .18s ease, transform .08s ease, box-shadow .18s ease;}
+.book-card .btn-ghost-dark:hover{background:#0a0e27;color:#fff;border-color:#0a0e27;box-shadow:0 8px 22px rgba(10,14,39,0.25);transform:translateY(-1px);}
+.book-card .btn-ghost-dark:active{transform:translateY(0) scale(0.99);}
+
+/* Primary 'Call Tre' green button — punch up contrast and weight, keep brand green */
+.book-card .btn-call-big{background:linear-gradient(135deg,#1a8a3a,#0f6b2a);color:#fff;font-weight:900;font-size:19px;padding:18px 22px;border-radius:14px;letter-spacing:0.3px;box-shadow:0 10px 24px rgba(15,107,42,0.45);transition:transform .12s ease, box-shadow .18s ease, filter .18s ease;}
+.book-card .btn-call-big:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(15,107,42,0.55);filter:brightness(1.05);}
+.book-card .btn-call-big:active{transform:translateY(0) scale(0.99);}
+
+/* Path number pill — slightly bigger, better aligned with new button sizes */
+.book-card .path-num{flex:0 0 36px;height:36px;font-size:16px;box-shadow:0 4px 10px rgba(212,160,23,0.35);}
+
+/* Section padding around the white booking card */
+.book-path{padding:24px 0;}
+.book-path:first-child{padding-top:6px;}
+.book-path:last-child{padding-bottom:6px;}
+
+/* Mobile tightening for booking buttons */
+@media (max-width:768px){
+    .book-card{padding:20px;}
+    .book-card .chip{flex:1 1 calc(50% - 8px);font-size:14px;padding:12px 14px;}
+    .book-card .btn-call-big{font-size:17px;padding:16px 18px;}
+    .book-card .btn-ghost-dark{font-size:15px;padding:14px 18px;}
+    .book-card .path-header strong{font-size:16px;}
+    .book-card .path-header span{font-size:13px;}
+}
