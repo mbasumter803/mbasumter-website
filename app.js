@@ -160,3 +160,29 @@ function liveStatus(){var el=document.getElementById('liveStatus');if(!el)return
 function init7(){fetchBlocked();renderDays();bindConfirm();liveStatus();setInterval(liveStatus,60000);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init7);else init7();
 })();
+// test123
+
+/* tap rescue v1 */
+(function(){
+    function rescue(root){
+          if(!root||!root.querySelectorAll) return;
+          var els = root.querySelectorAll('.chip,.btn,.btn-ghost-dark,.btn-call-big,#qbConfirm,a.ms-btn,a.ms-call,a.ms-book');
+          els.forEach(function(el){
+                  if(el.dataset.tapRescued) return;
+                  el.dataset.tapRescued='1';
+                  el.style.touchAction='manipulation';
+                  el.addEventListener('pointerup', function(e){
+                            if(e.pointerType==='mouse') return;
+                            if(el.tagName==='A' && el.href){ window.location.href=el.href; return; }
+                            el.click();
+                  }, {passive:true});
+          });
+    }
+    if(document.readyState==='loading'){
+          document.addEventListener('DOMContentLoaded', function(){ rescue(document); });
+    } else { rescue(document); }
+    var mo = new MutationObserver(function(muts){
+          muts.forEach(function(m){ m.addedNodes.forEach(function(n){ if(n.nodeType===1) rescue(n); }); });
+    });
+    mo.observe(document.body || document.documentElement, {childList:true, subtree:true});
+})();
