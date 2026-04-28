@@ -568,3 +568,10 @@ body{padding-bottom:80px}
 .ms-book{background:linear-gradient(135deg,#d4a017,#b8860b);color:#fff;box-shadow:0 4px 12px rgba(212,160,23,0.35);}
 body{padding-bottom:80px;}
 }
+
+
+/* === TAP FIX v1 — eliminate iOS long-press requirement on buttons === */
+.btn,.chip,.deal-card,.ms-btn,.btn-call-big,.btn-ghost-dark,.chat-quick-btn,.chat-toggle,.faq-item summary,.hero-dots .dot,.nav-cta,.header-call,#qbConfirm,#chatSend,#openInlineChat{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:pointer;}
+.btn:active,.chip:active,.deal-card:active,.ms-btn:active,.btn-call-big:active,.btn-ghost-dark:active,.chat-quick-btn:active,#qbConfirm:active,#chatSend:active{transform:scale(0.98);transition:transform 0.05s ease;}
+html{-webkit-text-size-adjust:100%;}
+                                                                                                                                                                
