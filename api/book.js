@@ -62,7 +62,7 @@ export default async function handler(req, res) {
                                 '• Photo ID\n' +
                                 '• Bank info if interested in financing\n' +
                                 '• Anyone who will be sleeping on the bed\n\n' +
-                                'Trey will call to confirm your exact time. See you soon! – MBA Sumter';
+                                'Tre will text or call to confirm shortly. Need a different time? Reply RESCHEDULE and we will swap it. See you soon! – MBA Sumter';
 
                 const custParams = new URLSearchParams();
                     custParams.append('To', customerE164);
