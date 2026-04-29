@@ -22,8 +22,8 @@ h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif;line-height:1.15;color:
 .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:10px 24px;gap:20px}
 .nav-cta{color:#fff !important}
 .logo{display:flex;flex-direction:column;line-height:1}
-.logo-m{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:#0a0e27}
-.logo-sub{font-size:11px;letter-spacing:3px;color:#d4a017;font-weight:700}
+.logo-m{font-family:'Inter',sans-serif;font-size:16px;font-weight:800;color:#0a0e27;letter-spacing:-0.3px}
+.logo-sub{font-size:10px;letter-spacing:1px;color:#d4a017;font-weight:700}
 .nav-links{display:flex;gap:28px}
 .nav-links a{font-weight:600;font-size:14px;color:#333;transition:color .2s}
 .nav-links a:hover{color:#d4a017}
