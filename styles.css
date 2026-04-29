@@ -19,7 +19,7 @@ h1,h2,h3,h4{font-family:'Playfair Display',Georgia,serif;line-height:1.15;color:
 .topbar-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 .topbar-phone a{color:#d4a017;font-weight:700}
 .nav{background:#fff;border-bottom:1px solid #eee;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(0,0,0,.04)}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;gap:20px}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:10px 24px;gap:20px}
 .nav-cta{color:#fff !important}
 .logo{display:flex;flex-direction:column;line-height:1}
 .logo-m{font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:#0a0e27}
