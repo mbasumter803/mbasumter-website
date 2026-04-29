@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css"><style>@media (max-width:768px){.topbar{display:none !important}.nav-inner{padding:10px 14px !important}.header-call{display:none !important}.logo-m{font-size:22px}.logo-sub{font-size:11px}.hero{min-height:auto !important;padding:48px 0 56px !important}.hero-content{padding:0 18px}.hero-pills,.trust-row,.hero-trust{order:2 !important;margin-top:16px !important}.hero h1,.hero-title{order:1 !important}.hero-sub,.hero p{order:3 !important}.hero-ctas,.hero-cta-row{order:4 !important;margin-top:18px !important}.hero-content{display:flex !important;flex-direction:column !important}body.at-book .mobile-sticky{display:none !important}section{padding:40px 0 !important}.book-cta{padding:48px 0 !important}}</style>
 <script type="application/ld+json">
 {
 "@context": "https://schema.org",
@@ -295,7 +295,7 @@
 <a href="#book" class="ms-btn ms-book">Book Appointment</a>
 </div>
 
-<script src="app.js?v=8"></script>
+<script src="app.js?v=8"></script><script>(function(){var b=document.getElementById('book');if(!b)return;var io=new IntersectionObserver(function(es){es.forEach(function(e){document.body.classList.toggle('at-book',e.isIntersecting);});},{rootMargin:'0px 0px -20% 0px'});io.observe(b);})();</script>
 <script>
 (function(){
   const slides = document.querySelectorAll('.hero-slide');
