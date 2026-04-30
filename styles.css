@@ -1076,3 +1076,73 @@ html{-webkit-text-size-adjust:100%;}
 
 /* 15. Book section — top-bar-brand anchors properly to hero */
 .top-bar-brand { cursor: pointer; }
+
+
+/* ===== CRO v10: Hero upgrades, SMS button, sticky bar tighten ===== */
+
+/* No Credit badge in hero proof bar */
+.hpb-credit {
+  color: #d4a017;
+  font-weight: 700;
+}
+
+/* Text Tre SMS button */
+.btn-sms {
+  background: transparent;
+  border: 2px solid rgba(255,255,255,0.5);
+  color: #fff;
+  font-weight: 600;
+  padding: 14px 22px;
+  border-radius: 50px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: border-color 0.2s, background 0.2s;
+  font-size: 15px;
+}
+.btn-sms:hover {
+  border-color: #d4a017;
+  background: rgba(212,160,23,0.12);
+  color: #d4a017;
+}
+
+/* Hero CTA row wraps nicely on mobile with 3 buttons */
+.hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 24px;
+}
+
+/* Tighten mobile sticky bar height by ~18% */
+@media (max-width: 768px) {
+  .mobile-sticky {
+    padding: 8px 12px !important;
+    min-height: unset !important;
+  }
+  .ms-btn {
+    padding: 11px 16px !important;
+    font-size: 14px !important;
+    border-radius: 8px !important;
+  }
+  /* Hero 3-button stack on mobile */
+  .hero-ctas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .btn-sms {
+    justify-content: center;
+    padding: 13px 20px;
+    font-size: 15px;
+  }
+  /* Proof bar wraps on mobile without overflow */
+  .hero-proof-bar {
+    flex-wrap: wrap;
+    gap: 6px 10px;
+  }
+  .hpb-div {
+    display: none;
+  }
+}
