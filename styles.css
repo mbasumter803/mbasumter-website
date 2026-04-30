@@ -936,3 +936,143 @@ html{-webkit-text-size-adjust:100%;}
   .hero-h1{font-size:30px;}
   .hero-proof-bar{font-size:11px;}
 }
+
+
+/* ===== CRO v9 PATCH — Gap fix, review names, hero overlay, FAQ CTA, mobile polish ===== */
+
+/* 1. REMOVE white gap between Financing and FAQ */
+.financing { margin-bottom: 0 !important; padding-bottom: 60px !important; }
+.faq { margin-top: 0 !important; padding-top: 60px !important; }
+
+/* 2. Hero overlay — stronger gradient on left so text pops over customer photo sign */
+.hero-overlay {
+  background: linear-gradient(
+    100deg,
+    rgba(10,14,39,0.92) 0%,
+    rgba(10,14,39,0.80) 45%,
+    rgba(10,14,39,0.55) 75%,
+    rgba(10,14,39,0.40) 100%
+  ) !important;
+}
+
+/* 3. Review cards — name + location meta styling */
+.review-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.review-name {
+  font-weight: 800;
+  font-size: 14px;
+  color: #0a0e27;
+}
+.review-location {
+  font-size: 12px;
+  color: #999;
+}
+.review-author {
+  font-size: 12px;
+  color: #1a8a3a;
+  font-weight: 700;
+}
+
+/* 4. FAQ bottom CTA */
+.faq-bottom-cta {
+  text-align: center;
+  margin-top: 40px;
+  padding: 32px;
+  background: linear-gradient(135deg, #0a0e27, #1a1f4a);
+  border-radius: 16px;
+  color: #fff;
+}
+.faq-bottom-cta p {
+  color: #d5d9e9;
+  font-size: 17px;
+  margin-bottom: 20px;
+}
+.faq-cta-row {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.faq-cta-row .btn-dark {
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: #fff;
+}
+.faq-cta-row .btn-dark:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+/* 5. Hero background-position fix for portrait customer photos */
+.hero-slide {
+  background-position: center top !important;
+}
+
+/* 6. Mobile — showroom phone link styling */
+.showroom-info a[href^="tel"] {
+  color: #d4a017;
+  font-weight: 700;
+  font-size: 17px;
+  display: block;
+  margin-top: 4px;
+}
+
+/* 7. Reviews CTA button stronger text */
+.reviews-cta .btn-gold {
+  font-size: 16px;
+  padding: 16px 28px;
+}
+
+/* 8. Top bar "Call Tre" pill — hide on very small screens only (sticky bar handles it) */
+@media (max-width: 480px) {
+  .tbc-call { display: none !important; }
+}
+
+/* 9. Mobile: FAQ CTA row stacks */
+@media (max-width: 600px) {
+  .faq-cta-row { flex-direction: column; align-items: stretch; }
+  .faq-cta-row .btn { text-align: center; }
+  .faq-bottom-cta { padding: 22px 18px; border-radius: 12px; }
+}
+
+/* 10. Proof strip — hide on tiny mobile to save space */
+@media (max-width: 480px) {
+  .proof-strip { display: none; }
+}
+
+/* 11. Deal cards — slightly more padding on CTA area */
+.deal-cta {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+.deal-card.featured .deal-cta {
+  border-top-color: rgba(255,255,255,0.12);
+}
+
+/* 12. Why section — add light CTA at bottom */
+.why { padding-bottom: 60px; }
+.why-cta-row {
+  text-align: center;
+  margin-top: 36px;
+}
+
+/* 13. Mobile hero — bigger H1 on medium phones */
+@media (max-width: 768px) {
+  .hero-h1 { font-size: clamp(30px, 8vw, 44px) !important; line-height: 1.05 !important; }
+  .hero-sub { font-size: 15px !important; }
+  .hero-value-pills { gap: 6px !important; }
+  .hvp { font-size: 12px !important; padding: 5px 11px !important; }
+}
+
+/* 14. Sticky bottom bar — make Call Tre green (consistent with booking section) */
+.ms-call {
+  background: linear-gradient(135deg,#1a8a3a,#0f6b2a) !important;
+  box-shadow: 0 4px 12px rgba(26,138,58,0.35) !important;
+}
+
+/* 15. Book section — top-bar-brand anchors properly to hero */
+.top-bar-brand { cursor: pointer; }
