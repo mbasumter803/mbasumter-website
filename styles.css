@@ -1146,3 +1146,27 @@ html{-webkit-text-size-adjust:100%;}
     display: none;
   }
 }
+
+
+/* ===== Tre real photo styles ===== */
+.tre-photo {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center top;
+  border: 4px solid #d4a017;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  display: block;
+}
+.tre-avatar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+@media (max-width: 768px) {
+  .tre-photo {
+    width: 160px;
+    height: 160px;
+  }
+}
