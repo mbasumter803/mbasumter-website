@@ -421,5 +421,17 @@ document.addEventListener('DOMContentLoaded',function(){
   el.style.color=open?'#81e08a':'#ffd760';
 })();
 </script>
-</body>
+<!-- Sticky Mobile CTA Bar -->
+  <style>
+    #sticky-cta-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0a0e27;padding:10px 12px;box-shadow:0 -2px 12px rgba(0,0,0,0.4);gap:8px}
+    @media(max-width:768px){#sticky-cta-bar{display:flex}}
+    #sticky-cta-bar a{flex:1;text-align:center;padding:12px 8px;border-radius:6px;font-weight:700;font-size:15px;text-decoration:none;line-height:1.2}
+    #sticky-cta-bar .ms-btn-book{background:#d4a017;color:#0a0e27}
+    #sticky-cta-bar .ms-btn-call{background:#1a2040;color:#fff;border:1px solid #d4a017}
+    </style>
+  <div id="sticky-cta-bar">
+      <a href="#book" class="ms-btn-book" id="sticky-book-cta">📅 Book Free</a>
+      <a href="tel:8037951194" class="ms-btn-call" id="sticky-call-tre">📞 803-795-1194</a>
+  </div>
+</body> 
 </html>
