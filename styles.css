@@ -1165,9 +1165,23 @@ html{-webkit-text-size-adjust:100%;}
   margin-bottom: 20px;
 }
 @media (max-width: 768px) {
+  /* Tre photo circle - mobile size + centering */
   .tre-photo {
     width: 160px;
     height: 160px;
     object-position: center 35%;
+  }
+  /* Meet Tre section - stack vertically on mobile */
+  .tre-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .tre-photo-col {
+    align-items: center;
+    text-align: center;
+  }
+  .tre-photo-placeholder,
+  .tre-avatar {
+    margin: 0 auto;
   }
 }
