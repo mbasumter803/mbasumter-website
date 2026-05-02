@@ -17,7 +17,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FurnitureStore","name":"Mattress By Appointment Sumter","url":"https://mbasumter.com","telephone":"+1-803-795-1194","address":{"@type":"PostalAddress","streetAddress":"1809 Hwy 15 South","addressLocality":"Sumter","addressRegion":"SC","postalCode":"29150","addressCountry":"US"},"openingHours":"Mo-Su 10:00-19:00","priceRange":"$$","aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"200"}}
+{"@context":"https://schema.org","@type":["LocalBusiness","FurnitureStore"],"name":"Mattress By Appointment Sumter","url":"https://mbasumter.com","telephone":"+1-803-795-1194","address":{"@type":"PostalAddress","streetAddress":"1809 Hwy 15 South","addressLocality":"Sumter","addressRegion":"SC","postalCode":"29150","addressCountry":"US"},"geo":{"@type":"GeoCoordinates","latitude":33.9021,"longitude":-80.3568},"openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],"opens":"10:00","closes":"19:00"}],"priceRange":"$$","description":"Private mattress shopping by appointment. Save 50-80% off retail on name-brand mattresses. Owner-operated by Tre Thompson. Serving Sumter SC since 2021.","aggregateRating":{"@type":"AggregateRating","ratingValue":"4.9","reviewCount":"200"}}
 </script>
 </head>
 <body>
@@ -40,20 +40,15 @@
 <section class="hero" id="hero">
   <div class="hero-slides">
     <div class="hero-slide active" style="background-image:url('image3.jpeg');background-position:top center"></div>
-    <div class="hero-slide" style="background-image:url('image5.jpeg');background-position:top center"></div>
-    <div class="hero-slide" style="background-image:url('image0%20(78).jpeg')"></div>
-    <div class="hero-slide" style="background-image:url('image7.jpeg');background-position:top center"></div>
   </div>
   <div class="hero-overlay"></div>
   <div class="container hero-content">
     <div class="hero-proof-bar">
-        <span>&#9733;&#9733;&#9733;&#9733;&#9733; 4.9 Rating</span>
+        <span class="hpb-dot-live">●</span><span id="hpb-open-status">Open Now</span>
         <span class="hpb-div">|</span>
-        <span>200+ Sumter Families Served</span>
+        <span>1809 Hwy 15 South, Sumter SC</span>
         <span class="hpb-div">|</span>
-        <span class="hpb-green">&#9679; Same-Day Available</span>
-        <span class="hpb-div">|</span>
-        <span class="hpb-credit">&#10003; No Credit Needed</span>
+        <span>7 Days · 10am–7pm</span>
       </div>
       <h1 class="hero-h1">Stop Overpaying, Sumter.</h1>
       <p class="hero-sub"><strong>50-80% off retail.</strong> Low overhead with no employees saves you money.</p>
@@ -70,12 +65,7 @@
       </div>
       <p class="hero-micro">Free. No obligation. Tre answers personally &mdash; 7 days, 10am&ndash;7pm.</p>
   </div>
-  <div class="hero-dots">
-    <button class="dot active" data-slide="0"></button>
-    <button class="dot" data-slide="1"></button>
-    <button class="dot" data-slide="2"></button>
-    <button class="dot" data-slide="3"></button>
-  </div>
+  
 </section>
 
 <!-- PROOF STRIP -->
@@ -172,9 +162,10 @@
           </div>
         </div>
         <div class="tre-ctas">
-          <a href="#book" class="btn btn-gold">Book With Tre &rarr;</a>
-          <a href="tel:8037951194" class="btn btn-dark" id="tre-call-tre">&#128222; Call Tre Direct</a>
+          <a href="#book" class="btn btn-gold" id="tre-book-cta">Book With Tre &rarr;</a>
+          <a href="tel:8037951194" class="btn btn-dark" id="tre-call-cta">&#128222; Call Tre Direct</a>
         </div>
+        <p class="tre-cta-nudge">Free · No pressure · Tre answers personally</p>
       </div>
     </div>
   </div>
@@ -356,22 +347,7 @@
   <a href="#book" class="ms-btn ms-book" id="sticky-book-appointment">Book Appointment</a>
 </div>
 <script src="app.js?v=13"></script>
-<script>
-(function(){
-  var slides=document.querySelectorAll('.hero-slide');
-  var dots=document.querySelectorAll('.hero-dots .dot');
-  var i=0;
-  function go(n){
-    slides.forEach(function(s){s.classList.remove('active');});
-    dots.forEach(function(d){d.classList.remove('active');});
-    slides[n].classList.add('active');
-    if(dots[n])dots[n].classList.add('active');
-    i=n;
-  }
-  setInterval(function(){go((i+1)%slides.length);},6000);
-  dots.forEach(function(d,idx){d.addEventListener('click',function(){go(idx);});});
-})();
-</script>
+
 <script>
 document.addEventListener('DOMContentLoaded',function(){
   var ids={TWIN:'book-twin',FULL:'book-full',QUEEN:'book-queen',KING:'book-king'};
