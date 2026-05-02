@@ -817,11 +817,14 @@ html{-webkit-text-size-adjust:100%;}
   .tib-name{font-size:13px;}
   .tib-trust{display:none;}
   .reviews-grid{grid-template-columns:1fr;}
-  .tre-grid{grid-template-columns:1fr;gap:24px;}
-  .tre-photo-col{flex-direction:row;justify-content:flex-start;align-items:center;gap:16px;}
-  .tre-photo-placeholder{width:100px;height:100px;}
+  /* Meet Tre — stack vertically, center photo */
+  .tre-grid{grid-template-columns:1fr;gap:32px;}
+  .tre-photo-col{flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+  .tre-photo-placeholder,.tre-avatar{margin:0 auto;}
+  .tre-callout{max-width:100%;font-size:14px;text-align:center;}
   .tre-initials{font-size:28px;}
-  .tre-callout{max-width:none;font-size:13px;}
+  /* Comparison table — stack on mobile */
+  .compare-grid,.tre-compare{grid-template-columns:1fr;gap:12px;}
   .deals-cta-row{flex-direction:column;align-items:center;}
 }
 @media(max-width:600px){
@@ -1165,23 +1168,9 @@ html{-webkit-text-size-adjust:100%;}
   margin-bottom: 20px;
 }
 @media (max-width: 768px) {
-  /* Tre photo circle - mobile size + centering */
   .tre-photo {
-    width: 160px;
-    height: 160px;
+    width: 180px;
+    height: 180px;
     object-position: center 35%;
-  }
-  /* Meet Tre section - stack vertically on mobile */
-  .tre-grid {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-  .tre-photo-col {
-    align-items: center;
-    text-align: center;
-  }
-  .tre-photo-placeholder,
-  .tre-avatar {
-    margin: 0 auto;
   }
 }
