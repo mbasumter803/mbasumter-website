@@ -1613,3 +1613,36 @@ html{-webkit-text-size-adjust:100%;}
 .sn-call:hover {
   color: #fff;
 }
+
+
+/* ==================== ACCESSIBILITY FIXES ==================== */
+/* Section eyebrow on LIGHT backgrounds: use dark gold for WCAG contrast */
+/* #d4a017 on white = 2.4:1 (FAILS) — need #7a5800 or darker for 4.5:1 */
+/* Using #6b5000 gives ~5.1:1 on white */
+.how-it-works .section-eyebrow,
+.deals .section-eyebrow,
+.proof-section .section-eyebrow,
+.service-area .section-eyebrow {
+  color: #6b5000;
+  font-weight: 800;
+}
+
+/* Touch targets: ensure min 44x44px for accessibility */
+.deal-book.btn,
+.fin-item a,
+.sn-call,
+.sa-get-dir,
+.review-author,
+.footer-directions {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Ensure small inline links have enough touch area */
+.deals-brands a,
+.fin-disclaimer a {
+  padding: 4px 2px;
+  min-height: 24px;
+  display: inline-block;
+}
