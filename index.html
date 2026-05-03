@@ -560,5 +560,48 @@ document.addEventListener('DOMContentLoaded',function(){
       <a href="#book" class="ms-btn-book" id="sticky-book-cta">📅 Book Free</a>
       <a href="tel:8037951194" class="ms-btn-call" id="sticky-call-tre">📞 803-795-1194</a>
   </div>
+
+<!-- GTM Conversion Tracking: CTA click events -->
+<script>
+(function(){
+  // Map of element IDs / selectors -> event names for dataLayer
+  var ctas = [
+    { sel: '#qbConfirm',        event: 'booking_submit',      label: 'Quick Book Submit' },
+    { sel: '#sticky-book-cta',  event: 'cta_click',           label: 'Sticky Bar Book' },
+    { sel: '#sticky-call-tre',  event: 'cta_click',           label: 'Sticky Bar Call' },
+    { sel: '.btn-book-hero',    event: 'cta_click',           label: 'Hero Book' },
+    { sel: '.deal-book',        event: 'cta_click',           label: 'Deal Card Book' },
+    { sel: '[href="tel:8037951194"]', event: 'phone_tap',     label: 'Call Tre' }
+  ];
+  function push(evt, lbl) {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: evt, cta_label: lbl });
+  }
+  document.addEventListener('click', function(e) {
+    var t = e.target;
+    for(var i=0; i<ctas.length; i++) {
+      var c = ctas[i];
+      var el = t.closest ? t.closest(c.sel) : null;
+      if(!el && t.matches && t.matches(c.sel)) el = t;
+      if(el) { push(c.event, c.label); break; }
+    }
+  }, true);
+  // Fire booking_complete when done step appears
+  var obs = new MutationObserver(function(muts) {
+    muts.forEach(function(m) {
+      if(m.type==='attributes' && m.attributeName==='style') {
+        var el = m.target;
+        if(el.id==='qbDoneStep' && el.style.display!=='none') {
+          push('booking_complete', 'Quick Book Done');
+        }
+      }
+    });
+  });
+  document.addEventListener('DOMContentLoaded', function() {
+    var done = document.getElementById('qbDoneStep');
+    if(done) obs.observe(done, { attributes: true, attributeFilter: ['style'] });
+  });
+})();
+</script>
 </body> 
 </html>
