@@ -1205,3 +1205,50 @@ html{-webkit-text-size-adjust:100%;}
 
 /* Open Now live status update via JS */
 .hpb-status-closed { color: #ffd760; }
+
+
+/* ===== TRUST BAR - Booking Section ===== */
+.booking-trust-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  text-align: center;
+}
+.booking-trust-bar .trust-stars {
+  color: #d4a017;
+  font-size: 1.1em;
+  letter-spacing: 2px;
+}
+.booking-trust-bar .trust-text {
+  color: rgba(255,255,255,0.9);
+  font-size: 0.9em;
+}
+.booking-trust-bar .trust-link {
+  color: #d4a017;
+  font-size: 0.85em;
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.booking-trust-bar .trust-link:hover {
+  text-decoration: underline;
+}
+
+/* ===== HERO RATING BADGE ===== */
+.hero-rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(212,160,23,0.4);
+  border-radius: 20px;
+  padding: 5px 14px;
+  margin-bottom: 14px;
+  font-size: 0.9em;
+}
