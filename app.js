@@ -184,3 +184,80 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     });
     mo.observe(document.body || document.documentElement, {childList:true, subtree:true});
 })();
+
+
+/* ============================================================
+   SCROLL NUDGE — appears after 50% scroll, dismissed per session
+   ============================================================ */
+(function() {
+  if (sessionStorage.getItem('nudgeDismissed')) return;
+  let nudgeShown = false;
+  const nudgeEl = document.createElement('div');
+  nudgeEl.id = 'scroll-nudge';
+  nudgeEl.innerHTML =
+    '<div class="sn-inner">' +
+    '<button class="sn-close" id="snClose" aria-label="Close">&#10005;</button>' +
+    '<div class="sn-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>' +
+    '<div class="sn-msg">Still looking? Tre has same-day availability.</div>' +
+    '<a href="#book" class="sn-cta" id="snBookBtn">Book Free in 30 Seconds &rarr;</a>' +
+    '<a href="tel:8037951194" class="sn-call">&#128222; or call 803-795-1194</a>' +
+    '</div>';
+  document.body.appendChild(nudgeEl);
+
+  function showNudge() {
+    if (nudgeShown || sessionStorage.getItem('nudgeDismissed')) return;
+    nudgeShown = true;
+    nudgeEl.classList.add('sn-visible');
+    if (window.dataLayer) window.dataLayer.push({event: 'scroll_nudge_shown'});
+  }
+
+  function hideNudge() {
+    nudgeEl.classList.remove('sn-visible');
+    sessionStorage.setItem('nudgeDismissed', '1');
+  }
+
+  // Show after scrolling 50% of page
+  function onScroll() {
+    const scrolled = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+    if (scrolled > 0.50) showNudge();
+  }
+  window.addEventListener('scroll', onScroll, {passive: true});
+
+  // Close button
+  nudgeEl.addEventListener('click', function(e) {
+    if (e.target.id === 'snClose') hideNudge();
+    if (e.target.id === 'snBookBtn') {
+      hideNudge();
+      if (window.dataLayer) window.dataLayer.push({event: 'scroll_nudge_book_click'});
+    }
+  });
+})();
+
+/* ============================================================
+   GTM / DATALAYER EVENTS — track all CTA clicks
+   ============================================================ */
+(function() {
+  if (!window.dataLayer) window.dataLayer = [];
+  var trackIds = [
+    'hiw-book-btn', 'hiw-call-btn',
+    'fin-book-btn', 'fin-call-btn',
+    'deals-book-btn', 'hero-book-free-appointment',
+    'hero-call-tre', 'hero-text-tre',
+    'header-call-tre', 'header-book-appointment',
+    'tre-book-cta', 'tre-call-cta',
+    'sticky-book-cta', 'sticky-call-tre',
+    'sticky-book-appointment', 'sticky-call-tre'
+  ];
+  document.addEventListener('click', function(e) {
+    var el = e.target.closest('[id]');
+    if (!el) return;
+    var id = el.id;
+    if (!id) return;
+    var isBook = id.indexOf('book') !== -1 || id.indexOf('Book') !== -1;
+    var isCall = id.indexOf('call') !== -1 || id.indexOf('Call') !== -1;
+    var isText = id.indexOf('text') !== -1 || id.indexOf('sms') !== -1;
+    if (isBook) window.dataLayer.push({event: 'book_cta_click', element_id: id});
+    else if (isCall) window.dataLayer.push({event: 'call_cta_click', element_id: id});
+    else if (isText) window.dataLayer.push({event: 'text_cta_click', element_id: id});
+  });
+})();
