@@ -186,6 +186,14 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 
 
+
+
+/* ============================================================
+   DEFERRED FEATURES — loaded after page fully ready (no TBT impact)
+   ============================================================ */
+window.addEventListener('load', function() {
+  setTimeout(function() {
+
 /* ============================================================
    SCROLL NUDGE — appears after 50% scroll, dismissed per session
    ============================================================ */
@@ -261,3 +269,6 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     else if (isText) window.dataLayer.push({event: 'text_cta_click', element_id: id});
   });
 })();
+
+  }, 1000);
+});
