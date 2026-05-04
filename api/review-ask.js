@@ -11,7 +11,7 @@ const REVIEW_URL    = 'https://g.page/r/5454551619852600338/review';
 function twilioAuth() {
   const sid   = process.env.TWILIO_ACCOUNT_SID;
   const token = process.env.TWILIO_AUTH_TOKEN;
-  const from  = process.env.TWILIO_FROM_NUMBER;
+  const from  = process.env.TWILIO_FROM;
   if (!sid || !token || !from) return null;
   return {
     sid, token, from,
