@@ -1646,3 +1646,116 @@ html{-webkit-text-size-adjust:100%;}
   min-height: 24px;
   display: inline-block;
 }
+
+
+/* =====================================================
+   MOBILE FIXES v1 — May 4, 2026
+   1. Marquee overflow (horizontal scroll bug)
+   2. Sticky bottom bar always visible on mobile
+   3. Nav trust pills hidden on small phones
+   4. Scroll nudge — smaller footprint on mobile
+   5. Pricing cards — 2×2 grid on mobile (no horiz scroll)
+   6. How-it-works — single column stack confirmed
+   ===================================================== */
+
+/* 1. MARQUEE OVERFLOW FIX — prevent horizontal scrollbar */
+.marquee-section { overflow-x: hidden; }
+.marquee { overflow: hidden; }
+
+/* 2. STICKY BOTTOM BAR — ensure it shows on mobile */
+@media (max-width: 900px) {
+  .mobile-sticky { display: flex !important; }
+  body { padding-bottom: 80px !important; }
+  /* Hide the old #sticky-cta-bar to avoid duplication */
+  #sticky-cta-bar { display: none !important; }
+}
+
+/* 3. NAV TRUST PILLS — hide on small phones to unclutter nav */
+@media (max-width: 600px) {
+  .top-bar-trust { display: none !important; }
+  .tib-trust { display: none !important; }
+  .tib-ctas { gap: 6px; }
+  .tib-name { font-size: 13px; }
+}
+
+/* 4. SCROLL NUDGE — compact on mobile, doesn't cover content */
+@media (max-width: 768px) {
+  #scroll-nudge {
+    max-width: calc(100vw - 32px);
+    right: 16px;
+  }
+  #scroll-nudge.sn-visible {
+    bottom: 86px; /* sit above sticky bar */
+  }
+  .sn-inner {
+    padding: 14px 16px 12px;
+  }
+  .sn-title {
+    font-size: 14px !important;
+  }
+  .sn-cta-btn {
+    padding: 11px 16px !important;
+    font-size: 14px !important;
+  }
+  .sn-call {
+    font-size: 13px !important;
+  }
+}
+
+/* 5. PRICING CARDS — 2×2 grid on mobile instead of 4-wide scroll */
+@media (max-width: 768px) {
+  .deals-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+  .deal-card {
+    padding: 20px 14px !important;
+  }
+  .deal-card.featured {
+    grid-column: span 2; /* Queen spans full width — it's the hero card */
+  }
+  .deal-price-tag, .deal-price, .price {
+    font-size: 28px !important;
+  }
+}
+
+/* 6. HOW-IT-WORKS — single column, left-align text on mobile */
+@media (max-width: 600px) {
+  .hiw-grid {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 32px !important;
+  }
+  .hiw-step {
+    min-width: 100% !important;
+    max-width: 100% !important;
+    text-align: left !important;
+  }
+  .hiw-num {
+    left: 24px !important;
+    transform: none !important;
+  }
+  .hiw-icon {
+    text-align: left !important;
+  }
+}
+
+/* 7. GENERAL MOBILE POLISH — larger tap targets, safe spacing */
+@media (max-width: 768px) {
+  /* Ensure nothing bleeds outside viewport */
+  body { overflow-x: hidden; }
+  
+  /* Booking form phone input — big and easy */
+  #qbPhone {
+    font-size: 18px !important;
+    padding: 16px !important;
+    min-height: 56px !important;
+  }
+  
+  /* Make CTA buttons full-width in booking section on mobile */
+  .book-cta .btn,
+  .book-cta a.btn {
+    width: 100% !important;
+    text-align: center !important;
+  }
+}
