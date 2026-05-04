@@ -95,8 +95,9 @@
 
 <!-- HERO -->
 <section class="hero" id="hero">
-  <div class="hero-slides">
-    <div class="hero-slide active" style="background-image:url('image3.jpeg');background-position:top center"></div>
+              <div class="hero-slide" style="background-image:url('image3.jpeg');background-position:top center"></div>
+      <div class="hero-slide" style="background-image:url('image7.jpeg');background-position:center center"></div>
+      <div class="hero-slide" style="background-image:url('Tre%20Mattress%20guy%202.jpg');background-position:center top"></div>
   </div>
   <div class="hero-overlay"></div>
   <div class="container hero-content">
@@ -604,5 +605,14 @@ document.addEventListener('DOMContentLoaded',function(){
 })();
 </script>
   <style>/* Fix: hide old mobile-sticky bar, replaced by #sticky-cta-bar */#mobile-sticky{display:none!important}</style></style>
+
+<script>
+(function(){
+  var slides = document.querySelectorAll('.hero-slide');
+  if(!slides.length) return;
+  var pick = Math.floor(Math.random() * slides.length);
+  slides[pick].classList.add('active');
+})();
+</script>
 </body> 
 </html>
