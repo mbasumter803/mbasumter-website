@@ -1767,3 +1767,17 @@ html{-webkit-text-size-adjust:100%;}
 @media (max-width: 768px) {
   .tre-photo { width: 100% !important; height: 100% !important; }
 }
+
+
+/* KING CARD MOBILE FIX: span 2 cols so it does not sit alone in left column */
+@media (max-width: 768px) {
+  #deal-king {
+    grid-column: span 2 !important;
+  }
+  #deal-king .deal-price strong {
+    font-size: 48px !important;
+  }
+  #deal-king .deal-size {
+    font-size: 16px !important;
+  }
+}
