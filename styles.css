@@ -1759,3 +1759,11 @@ html{-webkit-text-size-adjust:100%;}
     text-align: center !important;
   }
 }
+
+
+/* OVAL FIX: Tre photo must fit inside avatar circle */
+.tre-avatar { overflow: hidden; }
+.tre-photo { width: 100% !important; height: 100% !important; border: none !important; box-shadow: none !important; border-radius: 50% !important; }
+@media (max-width: 768px) {
+  .tre-photo { width: 100% !important; height: 100% !important; }
+}
